@@ -1,14 +1,15 @@
-## datasets for tfrecords
 
 ## The update statement 
-[usage:](https://github.com/ssbuild/fastdatasets-examples)  https://github.com/ssbuild/fastdatasets-examples
-<br>
-<font color='red'>2023-04-28: fix lmdb mutiprocess</font>
-<font color='red'>2023-02-13: add TopDataset with iterable_dataset and patch</font>
-<font color='red'>2022-12-07: modify a bug for randomdataset for batch reminder</font>
-<font color='red'>2022-11-07: add numpy writer and parser,add memory writer and parser</font>
-<font color='red'>2022-10-29: add kv dataset </font>
-<font color='red'>2022-10-19: update and modify for __all__ module</font>
+
+2023-04-28: fix lmdb mutiprocess
+2023-02-13: add TopDataset with iterable_dataset and patch
+2022-12-07: modify a bug for randomdataset for batch reminder
+2022-11-07: add numpy writer and parser,add memory writer and parser
+2022-10-29: add kv dataset </font>
+2022-10-19: update and modify for __all__ module</font>
+
+## usage
+  [numpy_io](https://github.com/ssbuild/numpy_io) 
 
 ## Install
 ```commandline
