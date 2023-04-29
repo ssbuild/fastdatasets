@@ -1,12 +1,14 @@
 
 ## The update statement 
 
+```text
 2023-04-28: fix lmdb mutiprocess
 2023-02-13: add TopDataset with iterable_dataset and patch
 2022-12-07: modify a bug for randomdataset for batch reminder
 2022-11-07: add numpy writer and parser,add memory writer and parser
-2022-10-29: add kv dataset </font>
-2022-10-19: update and modify for __all__ module</font>
+2022-10-29: add kv dataset 
+2022-10-19: update and modify for __all__ module
+```
 
 ## usage
   [numpy_io](https://github.com/ssbuild/numpy_io) 
@@ -318,7 +320,7 @@ test_random(db_path)
 
 import numpy as np
 from tqdm import tqdm
-from fastdatasets.lmdb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter,NumpyWriter
+from fastdatasets.lmdb import DB,LMDB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter,NumpyWriter
 
 db_path = 'd:\\example_lmdb_numpy'
 
