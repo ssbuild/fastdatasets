@@ -24,6 +24,7 @@ __all__ = [
     "NumpyWriter",
 ]
 
+from ..common.writer_object import WriterObjectBaseForKV
 from ..common.writer import serialize_numpy, serialize_tensorflow_record
 
 
@@ -33,7 +34,7 @@ class DataType:
     bytes_list = 2
 
 
-class WriterObject:
+class WriterObject(WriterObjectBaseForKV):
     def __init__(self,filename,options=LEVELDB.LeveldbOptions(create_if_missing=True,error_if_exists=False)):
         self.options = options
         self.file_writer = LEVELDB.Leveldb(filename,options=options)

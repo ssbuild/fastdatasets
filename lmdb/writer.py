@@ -8,6 +8,8 @@ import pickle
 import numpy as np
 import data_serialize
 from tfrecords import LMDB
+
+from ..common.writer_object import WriterObjectBaseForKV
 from ..common.writer import serialize_numpy, serialize_tensorflow_record
 
 __all__ = [
@@ -34,7 +36,7 @@ class DataType:
     bytes_list = 2
 
 
-class WriterObject:
+class WriterObject(WriterObjectBaseForKV):
     def __init__(self,filename,
                  options=LMDB.LmdbOptions(env_open_flag = 0,
                     env_open_mode = 0o664, # 8进制表示

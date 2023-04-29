@@ -6,6 +6,8 @@ import pickle
 import typing
 import numpy as np
 import data_serialize
+
+from ..common.writer_object import WriterObjectBaseForRecord
 from ..common.writer import serialize_numpy, serialize_tensorflow_record
 from tfrecords import TFRecordOptions,TFRecordCompressionType,TFRecordWriter,RECORD
 
@@ -33,7 +35,7 @@ class DataType:
     bytes_list = 2
 
 
-class WriterObject:
+class WriterObject(WriterObjectBaseForRecord):
     def __init__(self, filename, options=TFRecordOptions(compression_type='GZIP')):
         self.filename = filename
         self.options = options

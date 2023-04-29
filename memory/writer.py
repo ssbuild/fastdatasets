@@ -7,6 +7,7 @@ import typing
 import numpy as np
 import data_serialize
 
+from ..common.writer_object import WriterObjectBaseForRecord
 from ..common.writer import serialize_numpy, serialize_tensorflow_record
 from ..utils import MEMORY
 
@@ -31,7 +32,7 @@ class DataType:
 
 
 
-class WriterObject:
+class WriterObject(WriterObjectBaseForRecord):
     def __init__(self, filename: typing.List, options=MEMORY.MemoryOptions()):
         self.filename = filename
         self.options = options
