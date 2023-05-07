@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     setuptools.setup(
         name=package_name,
-        version="0.9.7",
+        version="0.9.7@post0",
         author="ssbuild",
         author_email="9727464@qq.com",
         description=title,
