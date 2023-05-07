@@ -69,7 +69,7 @@ def serialize_numpy(data: typing.Dict):
         elif v.dtype == np.float32:
             value_key = 'float32'
             val = v.reshape((-1,)).tolist()
-        elif v.dtype == np.float or v.dtype == np.float64:
+        elif v.dtype == np.float64:
             value_key = 'float64'
             val = v.reshape((-1,)).tolist()
         elif v.dtype.kind == 'S':
