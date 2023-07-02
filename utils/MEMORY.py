@@ -4,7 +4,8 @@ import typing
 from .py_features import Final
 
 __all__ = [
-    'MemoryOptions','MemoryWriter'
+    'MemoryOptions',
+    'MemoryWriter'
 ]
 
 
