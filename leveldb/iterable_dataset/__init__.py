@@ -176,6 +176,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleLeveldbIterableDataset,
+                    "file": it_obj["file"],
                     "instance": None
                 }
             )

@@ -156,6 +156,7 @@ class MultiMemoryIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleMemoryIterableDataset,
+                    "file": it_obj["file"],
                     "instance": None
                 }
             )

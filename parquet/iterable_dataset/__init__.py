@@ -216,6 +216,7 @@ class MultiParquetIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleParquetIterableDataset,
+                    "file": it_obj["file"],
                     "instance": None
                 }
             )

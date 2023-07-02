@@ -185,6 +185,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleLmdbIterableDataset,
+                    "file": it_obj["file"],
                     "instance": None
                 }
             )
