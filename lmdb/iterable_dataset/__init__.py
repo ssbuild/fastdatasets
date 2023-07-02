@@ -39,7 +39,7 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
         self.max_readers = max_readers
         self.max_dbs = max_dbs
         self.block_length = block_length
-        self.data_path = data_path
+        self.path = data_path
         self.options  = options
 
         self.block_id = -1
@@ -70,8 +70,8 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
     def __reopen__(self):
         self.block_id = -1
         self.close()
-        if os.path.exists(self.data_path):
-            self.iterator_ = LMDB.Lmdb(self.data_path,
+        if os.path.exists(self.path):
+            self.iterator_ = LMDB.Lmdb(self.path,
                                        options=self.options,
                                        map_size=self.map_size,
                                        max_readers=self.max_readers,
@@ -107,6 +107,9 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
                     self.buffer.append(next(iterator))
             except StopIteration:
                 pass
+            except Exception as e:
+                warnings.warn('data corrupted in {} , err {}'.format(self.path, str(e)))
+                pass
         if len(self.buffer) == 0:
             raise StopIteration
         return self.buffer.pop(0)
@@ -134,7 +137,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
                  buffer_size: typing.Optional[int]=64,
                  cycle_length=None,
                  block_length=1,
-                 options =DefaultOptions,
+                 options = copy.deepcopy(global_default_options),
                  map_size =0,
                  max_readers: int = 128,
                  max_dbs: int = 0
@@ -152,7 +155,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
         self.options = options
         self.cycle_length = min(cycle_length,len(data_path))
         self.block_length = block_length
-        self.data_path = data_path
+        self.path = data_path
         self.buffer_size = buffer_size
 
         if self.buffer_size is None:
@@ -160,7 +163,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
         self.reset()
 
     def reset(self):
-        self.iterators_ = [{"valid": False,"file": self.data_path[i]} for i in range(len(self.data_path))]
+        self.iterators_ = [{"valid": False,"file": self.path[i]} for i in range(len(self.path))]
         self.cicle_iterators_ = []
         self.fresh_iter_ids = False
         self.cur_id = 0
@@ -182,14 +185,6 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleLmdbIterableDataset,
-                    "args": (it_obj["file"],
-                             self.buffer_size,
-                             self.block_length,
-                             self.options,
-                             self.map_size,
-                             self.max_readers,
-                             self.max_dbs,
-                             ),
                     "instance": None
                 }
             )
@@ -229,7 +224,13 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
             raise StopIteration
         try:
             if iter_obj['instance'] is None:
-                iter_obj['instance'] = iter_obj['class'](*iter_obj['args'])
+                iter_obj['instance'] = iter_obj['class'](iter_obj["file"],
+                                                         buffer_size=self.buffer_size,
+                                                         block_length = self.block_length,
+                                                         options = self.options,
+                                                         map_size = self.map_size,
+                                                         max_readers = self.max_readers,
+                                                         max_dbs = self.max_dbs,)
             iter = iter_obj['instance']
             it = next(iter)
             if iter.reach_block():

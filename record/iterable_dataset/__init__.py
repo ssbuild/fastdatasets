@@ -21,6 +21,7 @@ class SingleRecordIterableDataset(IterableDatasetBase):
     def __init__(self,
                  path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
+                 batch_size: typing.Optional[int] = None,
                  block_length=1,
                  options=copy.deepcopy(global_default_options),
                  with_share_memory=False
@@ -29,7 +30,8 @@ class SingleRecordIterableDataset(IterableDatasetBase):
         assert block_length > 0
         self.with_share_memory = with_share_memory
 
-
+        self.batch_size = batch_size if batch_size is not None else 1
+        assert self.batch_size > 0
         self.block_length = block_length
         self.path = path
         self.options  = options
@@ -63,7 +65,8 @@ class SingleRecordIterableDataset(IterableDatasetBase):
         self.close()
 
         if os.path.exists(self.path):
-            self.iterator_ = tfrecords.tf_record_iterator(self.path, options=self.options,
+            self.iterator_ = tfrecords.tf_record_iterator(self.path,
+                                                          options=self.options,
                                                           with_share_memory=self.with_share_memory)
         else:
             self.iterator_ = None
@@ -90,20 +93,23 @@ class SingleRecordIterableDataset(IterableDatasetBase):
         if iterator is None:
             raise StopIteration
 
-        if len(self.buffer) == 0:
+        if len(self.buffer) < self.batch_size:
             try:
-                for _ in range(self.buffer_size):
+                for _ in range(max(self.buffer_size,self.batch_size-len(self.buffer) + 1)):
                     self.buffer.append(next(iterator))
             except StopIteration:
                 pass
             except tfrecords.DataLossError:
                 warnings.warn('data corrupted in {} Is this even a TFRecord file?'.format(self.path))
                 pass
-                # warnings.warn("Number of elements in the iterator is less than the "
-                #               f"queue size (N={self.buffer_size}).")
+
         if len(self.buffer) == 0:
             raise StopIteration
-        return self.buffer.pop(0)
+
+        if self.batch_size == 1:
+            return self.buffer.pop(0)
+
+        return [self.buffer.pop(0) for i in range(min(len(self.buffer), self.batch_size))]
 
 class MultiRecordIterableDataset(IterableDatasetBase):
     """Parse (generic) TFRecords dataset into `IterableDataset` object,
@@ -126,6 +132,7 @@ class MultiRecordIterableDataset(IterableDatasetBase):
     def __init__(self,
                  path: typing.List[typing.Union[typing.AnyStr,typing.Iterator]],
                  buffer_size: typing.Optional[int]=64,
+                 batch_size: typing.Optional[int] = 1,
                  cycle_length=None,
                  block_length=1,
                  options=copy.deepcopy(global_default_options),
@@ -144,6 +151,7 @@ class MultiRecordIterableDataset(IterableDatasetBase):
         self.block_length = block_length
         self.path = path
         self.buffer_size = buffer_size
+        self.batch_size = batch_size
 
         if self.buffer_size is None:
             self.buffer_size = 1
@@ -172,12 +180,6 @@ class MultiRecordIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleRecordIterableDataset,
-                    "args": (it_obj["file"],
-                             self.buffer_size,
-                             self.block_length,
-                             self.options,
-                             self.with_share_memory
-                             ),
                     "instance": None
                 }
             )
@@ -217,7 +219,12 @@ class MultiRecordIterableDataset(IterableDatasetBase):
             raise StopIteration
         try:
             if iter_obj['instance'] is None:
-                iter_obj['instance'] = iter_obj['class'](*iter_obj['args'])
+                iter_obj['instance'] = iter_obj['class'](path=iter_obj["file"],
+                                                         buffer_size=self.buffer_size,
+                                                         batch_size=self.batch_size,
+                                                         block_length= self.block_length,
+                                                         options= self.options,
+                                                         with_share_memory=self.with_share_memory)
             iter = iter_obj['instance']
             it = next(iter)
             if iter.reach_block():

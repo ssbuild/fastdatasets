@@ -173,7 +173,8 @@ class MultiRecordRandomDataset(RandomDatasetBase):
 
     def __reopen__(self):
         for it_obj in self.iterators_:
-            it_obj['inst'] = SingleRecordRandomDataset(it_obj["file"], index_path=self.index_path,
+            it_obj['inst'] = SingleRecordRandomDataset(it_obj["file"],
+                                                       index_path=self.index_path,
                                                        use_index_cache=self.use_index_cache,
                                                        options=self.options,
                                                        with_share_memory=self.with_share_memory)

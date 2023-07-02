@@ -13,12 +13,16 @@ from .. import IterableDatasetBase
 from ..default import global_default_options
 import copy
 
-__all__ = ["SingleLeveldbIterableDataset", "MultiLeveldbIterableDataset", "tfrecords", "warnings"]
+__all__ = [
+    "SingleLeveldbIterableDataset",
+    "MultiLeveldbIterableDataset"
+]
 
 class SingleLeveldbIterableDataset(IterableDatasetBase):
     def __init__(self,
                  data_path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
+                 batch_size: typing.Optional[int] = None,
                  block_length=1,
                  options=copy.deepcopy(global_default_options),
                  with_share_memory=False
@@ -27,9 +31,10 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
 
         assert block_length > 0
 
+        self.batch_size = batch_size if batch_size is not None else 1
         self.with_share_memory = with_share_memory
         self.block_length = block_length
-        self.data_path = data_path
+        self.path = data_path
         self.options  = options
 
         self.block_id = -1
@@ -60,8 +65,8 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
     def __reopen__(self):
         self.block_id = -1
         self.close()
-        if os.path.exists(self.data_path):
-            self.iterator_ = LEVELDB.Leveldb(self.data_path, options=self.options)
+        if os.path.exists(self.path):
+            self.iterator_ = LEVELDB.Leveldb(self.path, options=self.options)
             self.iterator_obj = self.iterator_.get_iterater()
         else:
             self.iterator_ = None
@@ -87,15 +92,22 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
         if iterator is None:
             raise StopIteration
 
-        if len(self.buffer) == 0:
+        if len(self.buffer) < self.batch_size:
             try:
-                for _ in range(self.buffer_size):
+                for _ in range(max(self.buffer_size,self.batch_size-len(self.buffer) + 1)):
                     self.buffer.append(next(iterator))
             except StopIteration:
                 pass
+            except Exception as e:
+                warnings.warn('data corrupted in {} , err {}'.format(self.path, str(e)))
+                pass
         if len(self.buffer) == 0:
             raise StopIteration
-        return self.buffer.pop(0)
+
+        if self.batch_size == 1:
+            return self.buffer.pop(0)
+
+        return [self.buffer.pop(0) for i in range(min(len(self.buffer), self.batch_size))]
 
 class MultiLeveldbIterableDataset(IterableDatasetBase):
     """Parse (generic) TFTables dataset into `IterableDataset` object,
@@ -134,7 +146,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
         self.options = options
         self.cycle_length = min(cycle_length,len(data_path))
         self.block_length = block_length
-        self.data_path = data_path
+        self.path = data_path
         self.buffer_size = buffer_size
 
         if self.buffer_size is None:
@@ -142,7 +154,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
         self.reset()
 
     def reset(self):
-        self.iterators_ = [{"valid": False,"file": self.data_path[i]} for i in range(len(self.data_path))]
+        self.iterators_ = [{"valid": False,"file": self.path[i]} for i in range(len(self.path))]
         self.cicle_iterators_ = []
         self.fresh_iter_ids = False
         self.cur_id = 0
@@ -164,12 +176,6 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleLeveldbIterableDataset,
-                    "args": (it_obj["file"],
-                             self.buffer_size,
-                             self.block_length,
-                             self.options,
-                             self.with_share_memory
-                             ),
                     "instance": None
                 }
             )
@@ -209,7 +215,11 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
             raise StopIteration
         try:
             if iter_obj['instance'] is None:
-                iter_obj['instance'] = iter_obj['class'](*iter_obj['args'])
+                iter_obj['instance'] = iter_obj['class'](iter_obj["file"],
+                                                         buffer_size=self.buffer_size,
+                                                         block_length = self.block_length,
+                                                         options = self.options,
+                                                         with_share_memory = self.with_share_memory)
             iter = iter_obj['instance']
             it = next(iter)
             if iter.reach_block():

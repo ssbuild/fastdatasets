@@ -15,7 +15,10 @@ import copy
 from ..default import global_default_options
 from tfrecords.python.io.arrow import IPC_StreamReader,IPC_MemoryMappedFileReader,arrow
 
-__all__ = ["SingleArrowIterableDataset", 'MultiArrowIterableDataset', "tfrecords", "warnings"]
+__all__ = [
+    "SingleArrowIterableDataset",
+    'MultiArrowIterableDataset',
+]
 
 class SingleArrowIterableDataset(IterableDatasetBase):
     def __init__(self,
@@ -133,7 +136,7 @@ class SingleArrowIterableDataset(IterableDatasetBase):
             raise StopIteration
         if len(self.buffer) < self.batch_size:
             try:
-                for _ in range(self.buffer_size):
+                for _ in range(max(self.buffer_size,self.batch_size-len(self.buffer) + 1)):
                     self.buffer.extend(self.__next_data_())
             except StopIteration:
                 pass

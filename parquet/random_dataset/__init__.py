@@ -136,7 +136,8 @@ class MultiParquetRandomDataset(RandomDatasetBase):
 
     def __reopen__(self):
         for it_obj in self.iterators_:
-            it_obj['inst'] = SingleParquetRandomDataset(it_obj["file"], col_names=self.col_names,
+            it_obj['inst'] = SingleParquetRandomDataset(it_obj["file"],
+                                                        col_names=self.col_names,
                                                         options=self.options,
                                                         with_share_memory=self.with_share_memory)
 

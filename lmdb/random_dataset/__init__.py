@@ -1,6 +1,7 @@
 # @Time    : 2022/9/18 10:49
 # @Author  : tk
 # @FileName: __init__.py.py
+import copy
 import logging
 import typing
 import os
@@ -8,23 +9,24 @@ from typing import List
 import tfrecords
 from tfrecords import LMDB
 from .. import RandomDatasetBase
+from ..default import global_default_options
 
 logging.basicConfig(level=logging.INFO)
 
 
-__all__ = ["SingleLmdbRandomDataset", "MultiLmdbRandomDataset", "tfrecords", "logging"]
+__all__ = [
+    "SingleLmdbRandomDataset",
+    "MultiLmdbRandomDataset"
+]
 
-DefaultOptions = LMDB.LmdbOptions( env_open_flag = LMDB.LmdbFlag.MDB_RDONLY,
-                env_open_mode = 0o664, # 8进制表示
-                txn_flag = LMDB.LmdbFlag.MDB_RDONLY,
-                dbi_flag = 0,
-                put_flag = 0)
+
+
 class SingleLmdbRandomDataset(RandomDatasetBase):
     def __init__(self,
                  data_path: typing.Union[typing.AnyStr,typing.Sized],
                  data_key_prefix_list=('input',),
                  num_key='total_num',
-                 options=DefaultOptions,
+                 options=copy.deepcopy(global_default_options),
                  map_size=0,
                  max_readers: int = 128,
                  max_dbs: int = 0
@@ -100,7 +102,7 @@ class MultiLmdbRandomDataset(RandomDatasetBase):
                  data_path: List[typing.Union[typing.AnyStr,typing.Sized]],
                  data_key_prefix_list=('input',),
                  num_key='total_num',
-                 options = DefaultOptions,
+                 options = copy.deepcopy(global_default_options),
                  map_size=0,
                  max_readers: int = 128,
                  max_dbs: int = 0,
@@ -133,13 +135,12 @@ class MultiLmdbRandomDataset(RandomDatasetBase):
     def __reopen__(self):
         for it_obj in self.iterators_:
             it_obj['inst'] = SingleLmdbRandomDataset(it_obj["file"],
-                                                        data_key_prefix_list=self.data_key_prefix_list,
-                                                        num_key=self.num_key,
-                                                        options=self.options,
-                                                        map_size=self.map_size,
-                                                        max_readers = self.max_readers,
-                                                        max_dbs = self.max_dbs
-                                                     )
+                                                     data_key_prefix_list=self.data_key_prefix_list,
+                                                     num_key=self.num_key,
+                                                     options=self.options,
+                                                     map_size=self.map_size,
+                                                     max_readers = self.max_readers,
+                                                     max_dbs = self.max_dbs)
 
     def __len__(self):
         total_len = 0

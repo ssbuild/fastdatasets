@@ -13,9 +13,11 @@ import copy
 logging.basicConfig(level=logging.INFO)
 
 
-__all__ = ["SingleMemoryRandomDataset",
-           "MultiMemoryRandomDataset",
-           "logging"]
+__all__ = [
+   "SingleMemoryRandomDataset",
+   "MultiMemoryRandomDataset",
+   "logging"
+]
 
 
 class SingleMemoryRandomDataset(RandomDatasetBase):
@@ -117,7 +119,8 @@ class MultiMemoryRandomDataset(RandomDatasetBase):
 
     def __reopen__(self):
         for it_obj in self.iterators_:
-            it_obj['inst'] = SingleMemoryRandomDataset(it_obj["file"], index_path=self.index_path,
+            it_obj['inst'] = SingleMemoryRandomDataset(it_obj["file"],
+                                                       index_path=self.index_path,
                                                        use_index_cache=self.use_index_cache,
                                                        options=self.options,
                                                        with_share_memory=self.with_share_memory)

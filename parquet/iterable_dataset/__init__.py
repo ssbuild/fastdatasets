@@ -216,15 +216,6 @@ class MultiParquetIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleParquetIterableDataset,
-                    "args": dict(
-                        path = it_obj["file"],
-                        col_names = self.col_names,
-                        options = self.options,
-                        with_share_memory = self.with_share_memory,
-                        buffer_size = self.buffer_size,
-                        block_length = self.block_length,
-                        batch_size = self.batch_size,
-                    ),
                     "instance": None
                 }
             )
@@ -264,7 +255,13 @@ class MultiParquetIterableDataset(IterableDatasetBase):
             raise StopIteration
         try:
             if iter_obj['instance'] is None:
-                iter_obj['instance'] = iter_obj['class'](**iter_obj['args'])
+                iter_obj['instance'] = iter_obj['class'](path = iter_obj["file"],
+                                                        col_names = self.col_names,
+                                                        options = self.options,
+                                                        with_share_memory = self.with_share_memory,
+                                                        buffer_size = self.buffer_size,
+                                                        block_length = self.block_length,
+                                                        batch_size = self.batch_size,)
             iter = iter_obj['instance']
             it = next(iter)
             if iter.reach_block():

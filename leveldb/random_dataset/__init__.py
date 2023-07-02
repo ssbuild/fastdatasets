@@ -14,7 +14,10 @@ import copy
 logging.basicConfig(level=logging.INFO)
 
 
-__all__ = ["SingleLeveldbRandomDataset", "MultiLeveldbRandomDataset", "tfrecords", "logging"]
+__all__ = [
+    "SingleLeveldbRandomDataset",
+    "MultiLeveldbRandomDataset"
+]
 
 class SingleLeveldbRandomDataset(RandomDatasetBase):
     def __init__(self,

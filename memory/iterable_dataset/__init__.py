@@ -9,7 +9,10 @@ from multiprocessing import cpu_count
 from .. import IterableDatasetBase
 import copy
 
-__all__ = ["SingleMemoryIterableDataset",'MultiMemoryIterableDataset',"warnings"]
+__all__ = [
+    "SingleMemoryIterableDataset",
+    "MultiMemoryIterableDataset"
+]
 
 class SingleMemoryIterableDataset(IterableDatasetBase):
     def __init__(self,
@@ -153,11 +156,6 @@ class MultiMemoryIterableDataset(IterableDatasetBase):
             self.cicle_iterators_.append(
                 {
                     "class": SingleMemoryIterableDataset,
-                    "args": (it_obj["file"],
-                             self.buffer_size,
-                             self.block_length,
-                             self.options,
-                             ),
                     "instance": None
                 }
             )
@@ -197,7 +195,10 @@ class MultiMemoryIterableDataset(IterableDatasetBase):
             raise StopIteration
         try:
             if iter_obj['instance'] is None:
-                iter_obj['instance'] = iter_obj['class'](*iter_obj['args'])
+                iter_obj['instance'] = iter_obj['class'](iter_obj["file"],
+                                                         buffer_size=self.buffer_size,
+                                                         block_length=self.block_length,
+                                                         options=self.options,)
             iter = iter_obj['instance']
             it = next(iter)
             if iter.reach_block():
