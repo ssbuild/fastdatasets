@@ -10,6 +10,7 @@ import tfrecords
 from tfrecords import LEVELDB
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
+from ..default import global_default_options
 import copy
 
 __all__ = ["SingleLeveldbIterableDataset", "MultiLeveldbIterableDataset", "tfrecords", "warnings"]
@@ -19,7 +20,7 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
                  data_path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
                  block_length=1,
-                 options=LEVELDB.LeveldbOptions(create_if_missing=False, error_if_exists=False),
+                 options=copy.deepcopy(global_default_options),
                  with_share_memory=False
                  ):
 
@@ -35,6 +36,7 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
         if buffer_size is None:
             buffer_size = 1
         self.buffer_size = buffer_size
+        assert self.buffer_size  >0
 
         self.buffer = []
         self.iterator_ = None
@@ -84,19 +86,16 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
         iterator : LEVELDB.LeveldbIterater = self.iterator_obj
         if iterator is None:
             raise StopIteration
-        if self.buffer_size > 1:
-            if len(self.buffer) == 0:
-                try:
-                    for _ in range(self.buffer_size):
-                        self.buffer.append(next(iterator))
-                except StopIteration:
-                    pass
-            if len(self.buffer) == 0:
-                raise StopIteration
-            return self.buffer.pop(0)
-        else:
-            result = next(iterator)
-        return result
+
+        if len(self.buffer) == 0:
+            try:
+                for _ in range(self.buffer_size):
+                    self.buffer.append(next(iterator))
+            except StopIteration:
+                pass
+        if len(self.buffer) == 0:
+            raise StopIteration
+        return self.buffer.pop(0)
 
 class MultiLeveldbIterableDataset(IterableDatasetBase):
     """Parse (generic) TFTables dataset into `IterableDataset` object,

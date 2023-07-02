@@ -4,7 +4,7 @@
 from tqdm import tqdm
 from fastdatasets.leveldb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter
 
-db_path = 'd:\\example_leveldb'
+db_path = 'd:/tmp/example_leveldb'
 
 
 def test_write(db_path):

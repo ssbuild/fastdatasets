@@ -10,15 +10,19 @@ import tfrecords
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
 import copy
+from ..default import global_default_options
 
-__all__ = ["SingleRecordIterableDataset",'MultiRecordIterableDataset',"tfrecords","warnings"]
+__all__ = [
+    "SingleRecordIterableDataset",
+    "MultiRecordIterableDataset",
+]
 
 class SingleRecordIterableDataset(IterableDatasetBase):
     def __init__(self,
                  path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
                  block_length=1,
-                 options=tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.NONE),
+                 options=copy.deepcopy(global_default_options),
                  with_share_memory=False
                  ):
 
@@ -34,6 +38,7 @@ class SingleRecordIterableDataset(IterableDatasetBase):
         if buffer_size is None:
             buffer_size = 1
         self.buffer_size = buffer_size
+        assert self.buffer_size > 0
 
         self.buffer = []
         self.iterator_ = None
@@ -84,24 +89,21 @@ class SingleRecordIterableDataset(IterableDatasetBase):
         iterator = self.iterator_
         if iterator is None:
             raise StopIteration
-        if self.buffer_size > 1:
-            if len(self.buffer) == 0:
-                try:
-                    for _ in range(self.buffer_size):
-                        self.buffer.append(next(iterator))
-                except StopIteration:
-                    pass
-                except tfrecords.DataLossError:
-                    warnings.warn('data corrupted in {} Is this even a TFRecord file?'.format(self.path))
-                    pass
-                    # warnings.warn("Number of elements in the iterator is less than the "
-                    #               f"queue size (N={self.buffer_size}).")
-            if len(self.buffer) == 0:
-                raise StopIteration
-            return self.buffer.pop(0)
-        else:
-            iterator = next(iterator)
-        return iterator
+
+        if len(self.buffer) == 0:
+            try:
+                for _ in range(self.buffer_size):
+                    self.buffer.append(next(iterator))
+            except StopIteration:
+                pass
+            except tfrecords.DataLossError:
+                warnings.warn('data corrupted in {} Is this even a TFRecord file?'.format(self.path))
+                pass
+                # warnings.warn("Number of elements in the iterator is less than the "
+                #               f"queue size (N={self.buffer_size}).")
+        if len(self.buffer) == 0:
+            raise StopIteration
+        return self.buffer.pop(0)
 
 class MultiRecordIterableDataset(IterableDatasetBase):
     """Parse (generic) TFRecords dataset into `IterableDataset` object,
@@ -126,7 +128,7 @@ class MultiRecordIterableDataset(IterableDatasetBase):
                  buffer_size: typing.Optional[int]=64,
                  cycle_length=None,
                  block_length=1,
-                 options = tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.NONE),
+                 options=copy.deepcopy(global_default_options),
                  with_share_memory=False
                  ) -> None:
         super(MultiRecordIterableDataset, self).__init__()

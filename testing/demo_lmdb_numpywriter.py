@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from fastdatasets.lmdb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter,NumpyWriter
 
-db_path = 'd:\\example_lmdb_numpy'
+db_path = 'd:/tmp/example_lmdb_numpy'
 
 def test_write(db_path):
     options = DB.LmdbOptions(env_open_flag = 0,

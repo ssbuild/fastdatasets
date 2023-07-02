@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from fastdatasets.leveldb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter,NumpyWriter
 
-db_path = 'd:\\example_leveldb_numpy'
+db_path = 'd:/tmp/example_leveldb_numpy'
 
 def test_write(db_path):
     options = DB.LeveldbOptions(create_if_missing=True,error_if_exists=False)

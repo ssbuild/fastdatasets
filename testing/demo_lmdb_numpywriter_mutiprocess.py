@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from fastdatasets.lmdb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter,NumpyWriter
 
-db_path = 'd:\\example_lmdb_numpy'
+db_path = 'd:/tmp/example_lmdb_numpy'
 
 def test_write(db_path):
     options = DB.LmdbOptions(env_open_flag = 0,
@@ -37,15 +37,31 @@ def test_write(db_path):
     f.close()
 
 
-
 def test_random(db_path):
+    options = DB.LmdbOptions(env_open_flag=DB.LmdbFlag.MDB_RDONLY,
+                             env_open_mode=0o664,  # 8进制表示
+                             txn_flag=DB.LmdbFlag.MDB_RDONLY,
+                             dbi_flag=0,
+                             put_flag=0)
+    dataset = load_dataset.RandomDataset(db_path,
+                                         data_key_prefix_list=('input',),
+                                         num_key='total_num',
+                                         options=options)
+
+    dataset = dataset.parse_from_numpy_writer().shuffle(10)
+    print(len(dataset))
+    for i in tqdm(range(len(dataset)), total=len(dataset)):
+        d = dataset[i]
+        print(d)
+
+def test_random_muti(db_path):
     from multiprocessing import Manager, Process
 
 
-    def reader(db_path):
+    def reader(db_path,process_idx):
         options = DB.LmdbOptions(env_open_flag=DB.LmdbFlag.MDB_RDONLY,
                                  env_open_mode=0o664,  # 8进制表示
-                                 txn_flag=0,
+                                 txn_flag=DB.LmdbFlag.MDB_RDONLY,
                                  dbi_flag=0,
                                  put_flag=0)
         dataset = load_dataset.RandomDataset(db_path,
@@ -57,11 +73,11 @@ def test_random(db_path):
         print(len(dataset))
         for i in tqdm(range(len(dataset)), total=len(dataset)):
             d = dataset[i]
-            print(d)
+            print(process_idx,d)
 
     process_list = []
     for i in range(3):
-        p = Process(target=reader,args=(db_path,))
+        p = Process(target=reader,args=(db_path,i))
         process_list.append(p)
         p.start()
 

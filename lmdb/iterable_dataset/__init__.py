@@ -9,25 +9,24 @@ import tfrecords
 from tfrecords import LMDB
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
+import copy
+from ..default import global_default_options2 as global_default_options
 
-__all__ = ["SingleLmdbIterableDataset", "MultiLmdbIterableDataset", "tfrecords", "warnings"]
+__all__ = [
+    "SingleLmdbIterableDataset",
+    "MultiLmdbIterableDataset",
+    "warnings"
+]
 
 
 
-DefaultOptions = LMDB.LmdbOptions(env_open_flag = LMDB.LmdbFlag.MDB_RDONLY,
-                env_open_mode = 0o664, # 8进制表示
-                txn_flag = LMDB.LmdbFlag.MDB_RDONLY,
-                dbi_flag = 0,
-                put_flag = 0)
-
-   
 
 class SingleLmdbIterableDataset(IterableDatasetBase):
     def __init__(self,
                  data_path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
                  block_length=1,
-                 options=DefaultOptions,
+                 options=copy.deepcopy(global_default_options),
                  map_size=0,
                  max_readers: int = 128,
                  max_dbs: int = 0
@@ -47,6 +46,7 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
         if buffer_size is None:
             buffer_size = 1
         self.buffer_size = buffer_size
+        assert self.buffer_size > 0
 
         self.buffer = []
         self.iterator_ = None
@@ -101,19 +101,15 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
         iterator : LMDB.LmdbIterater = self.iterator_obj
         if iterator is None:
             raise StopIteration
-        if self.buffer_size > 1:
-            if len(self.buffer) == 0:
-                try:
-                    for _ in range(self.buffer_size):
-                        self.buffer.append(next(iterator))
-                except StopIteration:
-                    pass
-            if len(self.buffer) == 0:
-                raise StopIteration
-            return self.buffer.pop(0)
-        else:
-            result = next(iterator)
-        return result
+        if len(self.buffer) == 0:
+            try:
+                for _ in range(self.buffer_size):
+                    self.buffer.append(next(iterator))
+            except StopIteration:
+                pass
+        if len(self.buffer) == 0:
+            raise StopIteration
+        return self.buffer.pop(0)
 
 class MultiLmdbIterableDataset(IterableDatasetBase):
     """Parse (generic) TFTables dataset into `IterableDataset` object,

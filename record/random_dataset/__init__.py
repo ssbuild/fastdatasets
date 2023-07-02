@@ -10,11 +10,15 @@ from .. import RandomDatasetBase
 import pickle
 # from collections.abc import Sized
 import copy
+from ..default import global_default_options
 
 logging.basicConfig(level=logging.INFO)
 
 
-__all__ = ["SingleRecordRandomDataset","MultiRecordRandomDataset", "tfrecords", "logging"]
+__all__ = [
+    "SingleRecordRandomDataset",
+    "MultiRecordRandomDataset"
+]
 
 
 class SingleRecordRandomDataset(RandomDatasetBase):
@@ -22,12 +26,10 @@ class SingleRecordRandomDataset(RandomDatasetBase):
                  path: typing.Union[typing.AnyStr,typing.Sized],
                  index_path: str = None,
                  use_index_cache=True,
-                 options=tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.NONE),
+                 options=copy.deepcopy(global_default_options),
                  with_share_memory=False
                  ):
         super(SingleRecordRandomDataset, self).__init__()
-
-
 
         self.with_share_memory = with_share_memory
 
@@ -143,7 +145,7 @@ class MultiRecordRandomDataset(RandomDatasetBase):
                  data_path_data_list: List[typing.Union[typing.AnyStr,typing.Sized]],
                  index_path = None,
                  use_index_cache=True,
-                 options = tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.NONE),
+                 options=copy.deepcopy(global_default_options),
                  with_share_memory=False
                  ) -> None:
         super(MultiRecordRandomDataset, self).__init__()

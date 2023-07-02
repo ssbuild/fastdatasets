@@ -5,7 +5,7 @@ import random
 from fastdatasets.record import RECORD,load_dataset
 from fastdatasets import gfile
 
-data_path = gfile.glob('d:/example.tfrecords*')
+data_path = gfile.glob('d:/tmp/example.tfrecords*')
 print(data_path)
 options = RECORD.TFRecordOptions(compression_type=None)
 base_dataset = load_dataset.RandomDataset(data_path, use_index_cache=False, options=options)

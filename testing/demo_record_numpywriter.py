@@ -5,7 +5,7 @@ import numpy as np
 from fastdatasets.record import load_dataset
 from fastdatasets.record import RECORD, WriterObject,FeatureWriter,StringWriter,PickleWriter,DataType,NumpyWriter
 
-filename= r'd:\\example_writer.record'
+filename= r'd:/tmp/example_writer.record'
 
 def test_writer(filename):
     print('test_feature ...')

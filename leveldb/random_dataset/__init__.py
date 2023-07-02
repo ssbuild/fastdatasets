@@ -8,6 +8,7 @@ from typing import List
 import tfrecords
 from tfrecords import LEVELDB
 from .. import RandomDatasetBase
+from ..default import global_default_options
 import copy
 
 logging.basicConfig(level=logging.INFO)
@@ -20,8 +21,7 @@ class SingleLeveldbRandomDataset(RandomDatasetBase):
                  data_path: typing.Union[typing.AnyStr,typing.Sized],
                  data_key_prefix_list=('input',),
                  num_key='total_num',
-                 options=LEVELDB.LeveldbOptions(create_if_missing=False, error_if_exists=False),
-                 
+                 options=copy.deepcopy(global_default_options),
                  ):
         super(SingleLeveldbRandomDataset, self).__init__()
 
@@ -85,8 +85,7 @@ class MultiLeveldbRandomDataset(RandomDatasetBase):
                  data_path: List[typing.Union[typing.AnyStr,typing.Sized]],
                  data_key_prefix_list=('input',),
                  num_key='total_num',
-                 options = LEVELDB.LeveldbOptions(create_if_missing=False, error_if_exists=False),
-                 
+                 options=copy.deepcopy(global_default_options),
                  ) -> None:
         super(MultiLeveldbRandomDataset, self).__init__()
 

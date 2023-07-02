@@ -17,7 +17,6 @@ class SingleMemoryIterableDataset(IterableDatasetBase):
                  buffer_size: typing.Optional[int] = 64,
                  block_length=1,
                  options:any = None,
-                 
                  ):
 
         assert isinstance(data_iterator,Iterator)
@@ -112,7 +111,6 @@ class MultiMemoryIterableDataset(IterableDatasetBase):
                  cycle_length=None,
                  block_length=1,
                  options:any = None,
-                 
                  ) -> None:
         super(MultiMemoryIterableDataset, self).__init__()
 

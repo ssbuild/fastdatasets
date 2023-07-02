@@ -2,6 +2,7 @@
 ## The update statement 
 
 ```text
+2023-07-02: support arrow parquet
 2023-04-28: fix lmdb mutiprocess
 2023-02-13: add TopDataset with iterable_dataset and patch
 2022-12-07: modify a bug for randomdataset for batch reminder
@@ -374,4 +375,107 @@ def test_random(db_path):
 
 test_write(db_path)
 test_random(db_path)
+```
+
+
+
+### 7. arrow dataset 
+
+
+```python
+from fastdatasets.arrow.writer import AnythingWriter
+from fastdatasets.arrow.dataset import load_dataset,arrow
+
+
+path_file = 'd:/tmp/data.arrow'
+
+
+with_stream = False
+def test_write():
+    fs = AnythingWriter(path_file,
+                        schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
+                        with_stream=with_stream,
+                        options=None)
+    for i in range(3):
+        data = {
+            "id": list(range(i * 10,(i+ 1) * 10)),
+            'text': ['asdasdasdas' + str(i) for i in range(10)],
+            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
+        }
+        # fs.write_batch(data.keys(),data.values())
+        fs.write_table(data.keys(),data.values())
+
+
+    fs.close()
+
+def test_random():
+    dataset = load_dataset.RandomDataset(path_file,with_share_memory=not with_stream)
+    print('total', len(dataset))
+    for i in range(len(dataset)):
+        print(dataset[i])
+
+
+
+def test_read_iter():
+    dataset = load_dataset.IterableDataset(path_file,with_share_memory=not with_stream,batch_size=4)
+    for d in dataset:
+        print(d)
+
+
+test_write()
+
+test_random()
+
+# test_read_iter()
+
+```
+
+### 8. parquet dataset 
+
+```python
+from fastdatasets.parquet.writer import AnythingWriter
+from fastdatasets.parquet.dataset import load_dataset
+from tfrecords.python.io.arrow import ParquetReader,arrow
+
+
+path_file = 'd:/tmp/data.parquet'
+
+
+
+def test_write():
+    fs = AnythingWriter(path_file,
+                        schema={'id': 'int32','text': 'str','text2': 'str'},
+                        parquet_options=dict(write_batch_size = 10))
+    for i in range(3):
+        data = {
+            "id": list(range(i * 10,(i+ 1) * 10)),
+            'text': ['asdasdasdas' + str(i) for i in range(10)],
+            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
+        }
+        # fs.write_batch(data.keys(),data.values())
+        fs.write_table(data.keys(),data.values())
+
+
+    fs.close()
+
+def test_random():
+    dataset = load_dataset.RandomDataset(path_file)
+    print('total', len(dataset))
+    for i in range(len(dataset)):
+        print(dataset[i])
+
+
+
+def test_read_iter():
+    dataset = load_dataset.IterableDataset(path_file,batch_size=4)
+    for d in dataset:
+        print(d)
+
+
+test_write()
+
+test_random()
+
+# test_read_iter()
+
 ```

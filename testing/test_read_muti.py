@@ -17,7 +17,7 @@ def test_string(base_path,file_no):
             writer.write('file_{} '.format(file_no) + str(i))
             all_num += 1
 
-base_path = r'd:\\test'
+base_path = r'd:/test'
 if not os.path.exists(base_path):
     os.mkdir(base_path)
 

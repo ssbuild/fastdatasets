@@ -5,7 +5,7 @@
 from tqdm import tqdm
 from fastdatasets.lmdb import DB,load_dataset,WriterObject,DataType,StringWriter,JsonWriter,FeatureWriter
 
-db_path = 'd:\\example_lmdb3'
+db_path = 'd:/tmp/example_lmdb3'
 
 
 def test_write(db_path):
