@@ -8,14 +8,16 @@ import os
 import warnings
 import typing
 # from collections.abc import Iterator
-import tfrecords
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
 import copy
 from ..default import global_default_options
 from tfrecords.python.io.arrow import IPC_StreamReader,ParquetReader,arrow
 
-__all__ = ["SingleParquetIterableDataset", 'MultiParquetIterableDataset', "tfrecords", "warnings"]
+__all__ = [
+    "SingleParquetIterableDataset",
+    "MultiParquetIterableDataset"
+]
 
 class SingleParquetIterableDataset(IterableDatasetBase):
     def __init__(self,

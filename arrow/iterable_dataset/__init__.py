@@ -8,7 +8,6 @@ import os
 import warnings
 import typing
 # from collections.abc import Iterator
-import tfrecords
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
 import copy

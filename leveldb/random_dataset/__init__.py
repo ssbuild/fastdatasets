@@ -5,7 +5,6 @@ import logging
 import typing
 import os
 from typing import List
-import tfrecords
 from tfrecords import LEVELDB
 from .. import RandomDatasetBase
 from ..default import global_default_options
@@ -138,6 +137,6 @@ class MultiLeveldbRandomDataset(RandomDatasetBase):
                 break
             cur_len += len(tmp_obj)
         if obj is None:
-            raise tfrecords.OutOfRangeError
+            raise OverflowError
         real_index =  item - cur_len
         return obj[real_index]

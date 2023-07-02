@@ -5,7 +5,6 @@
 import os
 import warnings
 import typing
-import tfrecords
 from tfrecords import LMDB
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase

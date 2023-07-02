@@ -5,7 +5,6 @@ import logging
 import typing
 import os
 from typing import List
-import tfrecords
 from .. import RandomDatasetBase
 import pickle
 from ..default import global_default_options
@@ -160,6 +159,6 @@ class MultiParquetRandomDataset(RandomDatasetBase):
                 break
             cur_len += len(tmp_obj)
         if obj is None:
-            raise tfrecords.OutOfRangeError
+            raise OverflowError
         real_index =  item - cur_len
         return obj[real_index]

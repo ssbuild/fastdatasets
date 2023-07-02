@@ -6,7 +6,6 @@ import os
 import warnings
 import typing
 from collections.abc import Iterator
-import tfrecords
 from tfrecords import LEVELDB
 from multiprocessing import cpu_count
 from .. import IterableDatasetBase
