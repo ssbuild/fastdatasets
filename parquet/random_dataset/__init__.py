@@ -17,7 +17,13 @@ from tfrecords.python.io.arrow import IPC_StreamReader,ParquetReader,arrow
 logging.basicConfig(level=logging.INFO)
 
 
-__all__ = ["SingleParquetRandomDataset", "MultiParquetRandomDataset", "tfrecords", "logging"]
+__all__ = [
+    "SingleParquetRandomDataset",
+    "MultiParquetRandomDataset",
+    "IPC_StreamReader",
+    "ParquetReader",
+    "arrow"
+]
 
 
 class SingleParquetRandomDataset(RandomDatasetBase):
@@ -64,6 +70,8 @@ class SingleParquetRandomDataset(RandomDatasetBase):
                 self._file_reader = ParquetReader(self.path,
                                                   options=self.options,
                                                   memory_map=self.with_share_memory)
+
+                self._file_reader.set_batch_size(2)
                 self._table: arrow.Table = self._file_reader.read_table().Flatten().Value()
 
                 self.length = self._table.num_rows() if self._table is not None else 0

@@ -17,6 +17,9 @@ from tfrecords.python.io.arrow import IPC_StreamReader,IPC_MemoryMappedFileReade
 __all__ = [
     "SingleArrowIterableDataset",
     'MultiArrowIterableDataset',
+    "IPC_StreamReader",
+    "IPC_MemoryMappedFileReader",
+    "arrow"
 ]
 
 class SingleArrowIterableDataset(IterableDatasetBase):
@@ -75,9 +78,6 @@ class SingleArrowIterableDataset(IterableDatasetBase):
                     self.intenel_batch_idx = 0
                 else:
                     self._file_reader = IPC_StreamReader(self.path, options=self.options)
-
-
-
             except Exception as e:
                 self._file_reader = None
                 self._table = None
@@ -150,7 +150,7 @@ class SingleArrowIterableDataset(IterableDatasetBase):
         if self.batch_size == 1:
             return self.buffer.pop(0)
 
-        return [self.buffer.pop(0) for i in range(min(len(self.buffer),self.batch_size))]
+        return [self.buffer.pop(0) for _ in range(min(len(self.buffer),self.batch_size))]
 
 class MultiArrowIterableDataset(IterableDatasetBase):
     """Parse (generic) TFRecords dataset into `IterableDataset` object,

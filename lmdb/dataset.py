@@ -12,10 +12,6 @@ from .random_dataset import SingleLmdbRandomDataset,MultiLmdbRandomDataset
 from .default import global_default_options
 
 __all__ = [
-    # "SingleLmdbIterableDataset",
-    # "MultiLmdbIterableDataset",
-    # "SingleLmdbRandomDataset",
-    # "MultiLmdbRandomDataset",
     "DB",
     "load_dataset",
     "gfile",
@@ -23,141 +19,118 @@ __all__ = [
 
 
 
-def LmdbIterableDatasetLoader(data_path: Union[List[Union[AnyStr, typing.Iterator]], AnyStr, typing.Iterator],
-                              buffer_size: typing.Optional[int] = 128,
-                              cycle_length=1,
-                              block_length=1,
-                              options=copy.deepcopy(global_default_options),
-                              map_size=0):
-    if isinstance(data_path, list):
-        if len(data_path) == 1:
-            cls = SingleLmdbIterableDataset(data_path[0],
-                                            buffer_size = buffer_size,
-                                            block_length = block_length,
-                                            options=options,
-                                            map_size=map_size)
-        else:
-            cls = MultiLmdbIterableDataset(data_path,
-                                           buffer_size = buffer_size,
-                                           cycle_length = cycle_length,
-                                           block_length = block_length,
-                                           options=options,
-                                           map_size=map_size)
-    elif isinstance(data_path, str) :
-        cls = SingleLmdbIterableDataset(data_path,
-                                        buffer_size=buffer_size,
-                                        block_length=block_length,
-                                        options=options,
-                                        map_size=map_size)
-    else:
-        raise Exception('data_path must be list or single string')
-    return cls
 
-def LmdbRandomDatasetLoader(data_path: typing.Union[typing.List, typing.AnyStr, typing.Sized],
-                            data_key_prefix_list=('input',),
-                            num_key='total_num',
-                            options=copy.deepcopy(global_default_options),
-                            map_size=0):
-    if isinstance(data_path, list):
-        if len(data_path) == 1:
-            cls = SingleLmdbRandomDataset(data_path[0],
-                                          data_key_prefix_list=data_key_prefix_list,
-                                          num_key=num_key,
-                                          options=options,
-                                          map_size=map_size)
-        else:
-            cls = MultiLmdbRandomDataset(data_path,
-                                         data_key_prefix_list=data_key_prefix_list,
-                                         num_key=num_key,
-                                         options=options,
-                                         map_size=map_size)
-    elif isinstance(data_path, str) :
-        cls = SingleLmdbRandomDataset(data_path,
-                                      data_key_prefix_list=data_key_prefix_list,
-                                      num_key=num_key,
-                                      options=options,
-                                      map_size=map_size)
-    else:
-        raise Exception('data_path must be list or single string')
-    return cls
 
 class load_dataset:
 
     @staticmethod
-    def IterableDataset(data_path: Union[List[Union[AnyStr,typing.Iterator]],AnyStr,typing.Iterator],
+    def IterableDataset(path: Union[List[Union[AnyStr,typing.Iterator]],AnyStr,typing.Iterator],
                         buffer_size: typing.Optional[int] = 128,
+                        batch_size: typing.Optional[int] = None,
                         cycle_length=1,
                         block_length=1,
                         options=copy.deepcopy(global_default_options),
                         map_size=0):
-        return LmdbIterableDatasetLoader(data_path,
-                                         buffer_size=buffer_size,
-                                         cycle_length=cycle_length,
-                                         block_length=block_length,
-                                         options=options,
-                                         map_size=map_size)
+        if isinstance(path, list) and len(path) == 1:
+            path = path[0]
+
+        if isinstance(path, list):
+            cls = MultiLmdbIterableDataset(path,
+                                           buffer_size=buffer_size,
+                                           batch_size=batch_size,
+                                           cycle_length=cycle_length,
+                                           block_length=block_length,
+                                           options=options,
+                                           map_size=map_size)
+        elif isinstance(path, str):
+            cls = SingleLmdbIterableDataset(path,
+                                            buffer_size=buffer_size,
+                                            batch_size=batch_size,
+                                            block_length=block_length,
+                                            options=options,
+                                            map_size=map_size)
+        else:
+            raise Exception('path must be list or single string')
+        return cls
 
     @staticmethod
-    def SingleIterableDataset(data_path: typing.Union[typing.AnyStr,typing.Iterator],
+    def SingleIterableDataset(path: typing.Union[typing.AnyStr,typing.Iterator],
                               buffer_size: typing.Optional[int] = 64,
+                              batch_size: typing.Optional[int] = None,
                               block_length=1,
                               options=copy.deepcopy(global_default_options),
                               map_size=0):
 
-        return SingleLmdbIterableDataset(data_path,
+        return SingleLmdbIterableDataset(path,
                                          buffer_size=buffer_size,
+                                         batch_size=batch_size,
                                          block_length=block_length,
                                          options=options,
                                          map_size=map_size)
 
     @staticmethod
-    def MultiIterableDataset(data_path: typing.List[typing.Union[typing.AnyStr,typing.Iterator]],
-                 buffer_size: typing.Optional[int]=64,
-                 cycle_length=None,
-                 block_length=1,
-                 options=copy.deepcopy(global_default_options),
-                 map_size=0,
-                 ):
+    def MultiIterableDataset(path: typing.List[typing.Union[typing.AnyStr,typing.Iterator]],
+                             buffer_size: typing.Optional[int]=64,
+                             batch_size: typing.Optional[int] = None,
+                             cycle_length=None,
+                             block_length=1,
+                             options=copy.deepcopy(global_default_options),
+                             map_size=0):
 
-        return MultiLmdbIterableDataset(data_path,
+        return MultiLmdbIterableDataset(path,
                                         buffer_size=buffer_size,
+                                        batch_size=batch_size,
                                         cycle_length=cycle_length,
                                         block_length=block_length,
                                         options=options,
                                         map_size=map_size)
 
     @staticmethod
-    def RandomDataset(data_path: typing.Union[typing.List, typing.AnyStr, typing.Sized],
+    def RandomDataset(path: typing.Union[typing.List, typing.AnyStr, typing.Sized],
                       data_key_prefix_list=('input',),
                       num_key='total_num',
                       options=copy.deepcopy(global_default_options),
                       map_size=0,
                       ):
 
-        return LmdbRandomDatasetLoader(data_path,
-                                       data_key_prefix_list=data_key_prefix_list,
-                                       num_key=num_key,
-                                       options=options,map_size=map_size)
+        if isinstance(path, list) and len(path) == 1:
+            path = path[0]
+
+        if isinstance(path, list):
+            cls = MultiLmdbRandomDataset(path,
+                                         data_key_prefix_list=data_key_prefix_list,
+                                         num_key=num_key,
+                                         options=options,
+                                         map_size=map_size)
+        elif isinstance(path, str):
+            cls = SingleLmdbRandomDataset(path,
+                                          data_key_prefix_list=data_key_prefix_list,
+                                          num_key=num_key,
+                                          options=options,
+                                          map_size=map_size)
+        else:
+            raise Exception('path must be list or single string')
+        return cls
 
     @staticmethod
-    def SingleRandomDataset(data_path: typing.Union[typing.AnyStr,typing.Sized],
+    def SingleRandomDataset(path: typing.Union[typing.AnyStr,typing.Sized],
                             data_key_prefix_list=('input',),
                             num_key='total_num',
                             options=copy.deepcopy(global_default_options),
                             map_size=0):
-        return SingleLmdbRandomDataset(data_path,
+        return SingleLmdbRandomDataset(path,
                                        data_key_prefix_list=data_key_prefix_list,
                                        num_key=num_key,
                                        options=options, map_size=map_size)
 
     @staticmethod
-    def MutiRandomDataset(data_path: List[typing.Union[typing.AnyStr,typing.Sized]],
+    def MutiRandomDataset(path: List[typing.Union[typing.AnyStr,typing.Sized]],
                           data_key_prefix_list=('input',),
                           num_key='total_num',
                           options=copy.deepcopy(global_default_options),
                           map_size=0):
 
-        return MultiLmdbRandomDataset(data_path,
+        return MultiLmdbRandomDataset(path,
                                       data_key_prefix_list=data_key_prefix_list,
                                       num_key=num_key,
                                       options=options, map_size=map_size)

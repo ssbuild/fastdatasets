@@ -4,16 +4,16 @@
 # @File：demo_arrow_writer
 
 
-from fastdatasets.arrow.writer import AnythingWriter
+from fastdatasets.arrow.writer import PythonWriter
 from fastdatasets.arrow.dataset import load_dataset,arrow
 
 
 path_file = 'd:/tmp/data.arrow'
 
 
-with_stream = False
+with_stream = True
 def test_write():
-    fs = AnythingWriter(path_file,
+    fs = PythonWriter(path_file,
                         schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
                         with_stream=with_stream,
                         options=None)
@@ -47,4 +47,4 @@ test_write()
 
 test_random()
 
-# test_read_iter()
+test_read_iter()

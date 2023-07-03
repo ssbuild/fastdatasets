@@ -8,8 +8,16 @@ import numpy as np
 from tfrecords.python.io.arrow import arrow,parquet,IPC_Writer
 
 
+__all__ = [
+    'arrow',
+    'parquet',
+    'IPC_Writer',
+    'AnythingWriter',
+    'PythonWriter',
+    'MAP_DTYPE'
+]
 
-data_map = {
+MAP_DTYPE = {
     'int8': (arrow.int8(),arrow.Int8Builder),
     'int16': (arrow.int16(),arrow.Int16Builder),
     'int32': (arrow.int32(),arrow.Int32Builder),
@@ -33,15 +41,15 @@ data_map = {
     'large_string': (arrow.large_utf8(),arrow.LargeStringType),
 }
 
-class AnythingWriter:
+class PythonWriter:
     def __init__(self,filename,
                  schema: typing.Dict,
                  with_stream = True,
                  options: typing.Optional[typing.Dict]=None):
         assert len(schema)
-        global data_map
-        self.schema = arrow.schema([arrow.field(k,data_map.get(v)[0]) for k,v in schema.items()])
-        self.builder = {k:data_map.get(v)[1]() for k, v in schema.items()}
+        global MAP_DTYPE
+        self.schema = arrow.schema([arrow.field(k, MAP_DTYPE.get(v)[0]) for k,v in schema.items()])
+        self.builder = {k:MAP_DTYPE.get(v)[1]() for k, v in schema.items()}
         self.file_writer_ : IPC_Writer = IPC_Writer(filename,self.schema,with_stream=with_stream,options=options)
 
     def write_batch(self,keys,values):
@@ -68,3 +76,7 @@ class AnythingWriter:
 
     def close(self):
         self.file_writer_.close()
+
+
+
+AnythingWriter = PythonWriter

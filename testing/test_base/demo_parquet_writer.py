@@ -4,7 +4,7 @@
 # @File：demo_arrow_writer
 
 
-from fastdatasets.parquet.writer import AnythingWriter
+from fastdatasets.parquet.writer import PythonWriter
 from fastdatasets.parquet.dataset import load_dataset
 from tfrecords.python.io.arrow import ParquetReader,arrow
 
@@ -14,7 +14,7 @@ path_file = 'd:/tmp/data.parquet'
 
 
 def test_write():
-    fs = AnythingWriter(path_file,
+    fs = PythonWriter(path_file,
                         schema={'id': 'int32','text': 'str','text2': 'str'},
                         parquet_options=dict(write_batch_size = 10))
     for i in range(3):

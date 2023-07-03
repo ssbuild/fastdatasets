@@ -31,6 +31,7 @@ class SingleLeveldbIterableDataset(IterableDatasetBase):
         assert block_length > 0
 
         self.batch_size = batch_size if batch_size is not None else 1
+        assert self.batch_size > 0
         self.with_share_memory = with_share_memory
         self.block_length = block_length
         self.path = data_path
@@ -129,6 +130,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
     def __init__(self,
                  data_path: typing.List[typing.Union[typing.AnyStr,typing.Iterator]],
                  buffer_size: typing.Optional[int]=64,
+                 batch_size: typing.Optional[int] = None,
                  cycle_length=None,
                  block_length=1,
                  options =LEVELDB.LeveldbOptions(create_if_missing=False, error_if_exists=False),
@@ -141,6 +143,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
         if cycle_length is None:
             cycle_length = cpu_count()
 
+        self.batch_size = batch_size
         self.with_share_memory = with_share_memory
         self.options = options
         self.cycle_length = min(cycle_length,len(data_path))
@@ -217,6 +220,7 @@ class MultiLeveldbIterableDataset(IterableDatasetBase):
             if iter_obj['instance'] is None:
                 iter_obj['instance'] = iter_obj['class'](iter_obj["file"],
                                                          buffer_size=self.buffer_size,
+                                                         batch_size=self.batch_size,
                                                          block_length = self.block_length,
                                                          options = self.options,
                                                          with_share_memory = self.with_share_memory)

@@ -16,7 +16,10 @@ from tfrecords.python.io.arrow import IPC_StreamReader,ParquetReader,arrow
 
 __all__ = [
     "SingleParquetIterableDataset",
-    "MultiParquetIterableDataset"
+    "MultiParquetIterableDataset",
+    "IPC_StreamReader",
+    "ParquetReader",
+    "arrow"
 ]
 
 class SingleParquetIterableDataset(IterableDatasetBase):

@@ -383,7 +383,7 @@ test_random(db_path)
 
 
 ```python
-from fastdatasets.arrow.writer import AnythingWriter
+from fastdatasets.arrow.writer import PythonWriter
 from fastdatasets.arrow.dataset import load_dataset,arrow
 
 
@@ -392,7 +392,7 @@ path_file = 'd:/tmp/data.arrow'
 
 with_stream = False
 def test_write():
-    fs = AnythingWriter(path_file,
+    fs = PythonWriter(path_file,
                         schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
                         with_stream=with_stream,
                         options=None)
@@ -433,7 +433,7 @@ test_random()
 ### 8. parquet dataset 
 
 ```python
-from fastdatasets.parquet.writer import AnythingWriter
+from fastdatasets.parquet.writer import PythonWriter
 from fastdatasets.parquet.dataset import load_dataset
 from tfrecords.python.io.arrow import ParquetReader,arrow
 
@@ -443,7 +443,7 @@ path_file = 'd:/tmp/data.parquet'
 
 
 def test_write():
-    fs = AnythingWriter(path_file,
+    fs = PythonWriter(path_file,
                         schema={'id': 'int32','text': 'str','text2': 'str'},
                         parquet_options=dict(write_batch_size = 10))
     for i in range(3):

@@ -24,6 +24,7 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
     def __init__(self,
                  data_path: typing.Union[typing.AnyStr,typing.Iterator],
                  buffer_size: typing.Optional[int] = 64,
+                 batch_size: typing.Optional[int] = None,
                  block_length=1,
                  options=copy.deepcopy(global_default_options),
                  map_size=0,
@@ -34,6 +35,8 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
 
         assert block_length > 0
 
+        self.batch_size = batch_size if batch_size is not None else 1
+        assert self.batch_size > 0
         self.map_size = map_size
         self.max_readers = max_readers
         self.max_dbs = max_dbs
@@ -102,7 +105,7 @@ class SingleLmdbIterableDataset(IterableDatasetBase):
             raise StopIteration
         if len(self.buffer) == 0:
             try:
-                for _ in range(self.buffer_size):
+                for _ in range(max(self.buffer_size,self.batch_size-len(self.buffer) + 1)):
                     self.buffer.append(next(iterator))
             except StopIteration:
                 pass
@@ -134,6 +137,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
     def __init__(self,
                  data_path: typing.List[typing.Union[typing.AnyStr,typing.Iterator]],
                  buffer_size: typing.Optional[int]=64,
+                 batch_size: typing.Optional[int] = None,
                  cycle_length=None,
                  block_length=1,
                  options = copy.deepcopy(global_default_options),
@@ -148,6 +152,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
         if cycle_length is None:
             cycle_length = cpu_count()
 
+        self.batch_size = batch_size
         self.map_size = map_size
         self.max_readers = max_readers
         self.max_dbs = max_dbs
@@ -226,6 +231,7 @@ class MultiLmdbIterableDataset(IterableDatasetBase):
             if iter_obj['instance'] is None:
                 iter_obj['instance'] = iter_obj['class'](iter_obj["file"],
                                                          buffer_size=self.buffer_size,
+                                                         batch_size=self.batch_size,
                                                          block_length = self.block_length,
                                                          options = self.options,
                                                          map_size = self.map_size,

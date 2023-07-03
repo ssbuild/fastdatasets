@@ -21,6 +21,9 @@ logging.basicConfig(level=logging.INFO)
 __all__ = [
     "SingleArrowRandomDataset",
     "MultiArrowRandomDataset",
+    "IPC_StreamReader",
+    "IPC_MemoryMappedFileReader",
+    "arrow"
 ]
 
 
@@ -144,9 +147,10 @@ class MultiArrowRandomDataset(RandomDatasetBase):
 
     def __reopen__(self):
         for it_obj in self.iterators_:
-            it_obj['inst'] = SingleArrowRandomDataset(it_obj["file"], col_names=self.col_names,
-                                                        options=self.options,
-                                                        with_share_memory=self.with_share_memory)
+            it_obj['inst'] = SingleArrowRandomDataset(it_obj["file"],
+                                                      col_names=self.col_names,
+                                                      options=self.options,
+                                                      with_share_memory=self.with_share_memory)
 
     def __len__(self):
         total_len = 0
