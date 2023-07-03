@@ -5,6 +5,7 @@ import logging
 import math
 import typing
 import os
+import warnings
 from typing import List
 from .. import RandomDatasetBase
 import pickle
@@ -91,7 +92,7 @@ class SingleArrowRandomDataset(RandomDatasetBase):
                 self._file_reader = None
                 self._table = None
                 self.cols = None
-                print(e)
+                warnings.warn(str(e))
         else:
             self._file_reader = None
             self._table = None

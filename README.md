@@ -28,7 +28,7 @@ from fastdatasets.record import load_dataset, gfile,TFRecordOptions, TFRecordCom
 
 # Example Features结构兼容tensorflow.dataset
 def test_write_featrue():
-    options = TFRecordOptions(compression_type=TFRecordCompressionType.NONE)
+    options = 'GZIP'
 
     def test_write(filename, N=3, context='aaa'):
         with TFRecordWriter(filename, options=options) as file_writer:
@@ -53,7 +53,7 @@ def test_write_featrue():
 
 # 写任意字符串
 def test_write_string():
-    options = TFRecordOptions(compression_type=TFRecordCompressionType.NONE)
+    options = 'GZIP'
 
     def test_write(filename, N=3, context='aaa'):
         with TFRecordWriter(filename, options=options) as file_writer:

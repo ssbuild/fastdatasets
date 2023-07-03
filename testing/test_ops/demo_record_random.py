@@ -4,14 +4,14 @@
 
 
 import data_serialize
+import tfrecords
 from fastdatasets.record import load_dataset,gfile
 
+data_path = gfile.glob('d:/tmp/example_writer.tfrecord0')
 
+options = 'GZIP'
 def test_record():
-    data_path = gfile.glob('d:/example.tfrecords*')
-    print(data_path)
-
-    dataset = load_dataset.RandomDataset(data_path)
+    dataset = load_dataset.RandomDataset(data_path,options=options)
 
     # dataset = dataset.map(lambda x: x+  b"adasdasdasd")
     # print(len(dataset))
@@ -49,10 +49,10 @@ def test_record():
         print(i + 1,d[i])
 
 def test_mutiprocess():
-    data_path = gfile.glob('d:/example.tfrecords*')
+
     print(data_path)
 
-    dataset = load_dataset.RandomDataset(data_path)
+    dataset = load_dataset.RandomDataset(data_path,options=options)
     dataset0 = dataset.mutiprocess(3, 0)
     dataset1 = dataset.mutiprocess(3, 1)
     dataset2 = dataset.mutiprocess(3, 2)

@@ -82,7 +82,7 @@ class SingleArrowIterableDataset(IterableDatasetBase):
                 self._file_reader = None
                 self._table = None
                 self.cols = None
-                print(e)
+                warnings.warn(str(e))
 
         else:
             self._file_reader = None

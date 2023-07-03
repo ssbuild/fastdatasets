@@ -4,31 +4,46 @@
 
 import pickle
 import data_serialize
+import tfrecords
 from fastdatasets.record import load_dataset
 from fastdatasets.record import WriterObject,FeatureWriter,StringWriter,PickleWriter,DataType
+from tfrecords import TFRecordOptions, TFRecordCompressionType
 
-def test_string(filename=r'd:\\example_writer.record0'):
+filename_0 =  r'd:/tmp/example_writer.tfrecord0'
+filename_1 =  r'd:/tmp/example_writer.tfrecord1'
+filename_2 =  r'd:/tmp/example_writer.tfrecord2'
+
+def test_string(filename):
+    
+
+    options = 'GZIP'
     print('test_string ...')
-    with StringWriter(filename) as writer:
+    with StringWriter(filename,options=options) as writer:
         for i in range(2):
             writer.write(b'123' )
+    writer.close()
 
 
-    datasets = load_dataset.IterableDataset(filename)
+    datasets = load_dataset.IterableDataset(filename,options=options)
     for i,d in enumerate(datasets):
         print(i, d)
 
-def test_pickle(filename=r'd:\\example_writer.record1'):
+
+
+
+def test_pickle(filename):
     print('test_pickle ...')
     with PickleWriter(filename) as writer:
         for i in range(2):
             writer.write(b'test_pickle' + b'123')
+    writer.close()
+
     datasets = load_dataset.RandomDataset(filename)
     datasets = datasets.map(lambda x: pickle.loads(x))
     for i in range(len(datasets)):
         print(i, datasets[i])
 
-def test_feature(filename=r'd:\\example_writer.record2'):
+def test_feature(filename):
     print('test_feature ...')
     with FeatureWriter(filename) as writer:
         for i in range(5):
@@ -47,7 +62,7 @@ def test_feature(filename=r'd:\\example_writer.record2'):
                 },
             }
             writer.write(feature)
-
+    writer.close()
 
     datasets = load_dataset.RandomDataset(filename)
     for i in range(len(datasets)):
@@ -57,7 +72,7 @@ def test_feature(filename=r'd:\\example_writer.record2'):
         print(feature)
         #print(feature)
 
-# test_string()
-# test_pickle()
-test_feature()
+test_string(filename_0)
+# test_pickle(filename_1)
+# test_feature(filename_2)
 

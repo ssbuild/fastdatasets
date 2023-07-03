@@ -19,9 +19,6 @@ __all__ = [
 
 
 
-
-
-
 class load_dataset:
 
     @staticmethod
@@ -75,7 +72,7 @@ class load_dataset:
                              batch_size: typing.Optional[int] = None,
                              cycle_length=None,
                              block_length=1,
-                             options = RECORD.TFRecordOptions(RECORD.TFRecordCompressionType.NONE),
+                             options=copy.deepcopy(global_default_options),
                              with_share_memory=False):
 
         return MultiRecordIterableDataset(path,
@@ -126,7 +123,7 @@ class load_dataset:
     def MutiRandomDataset(path: List[typing.Union[typing.AnyStr]],
                           index_path = None,
                           use_index_cache=True,
-                          options = RECORD.TFRecordOptions(RECORD.TFRecordCompressionType.NONE),
+                          options=copy.deepcopy(global_default_options),
                           with_share_memory=False):
         return MultiRecordRandomDataset(path,
                                         index_path=index_path,

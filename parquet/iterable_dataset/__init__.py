@@ -83,7 +83,7 @@ class SingleParquetIterableDataset(IterableDatasetBase):
             except Exception as e:
                 self._file_reader = None
                 self.iterator_ = None
-                print(e)
+                warnings.warn(str(e))
 
         else:
             self._file_reader = None

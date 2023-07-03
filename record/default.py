@@ -5,4 +5,4 @@
 
 import tfrecords
 
-global_default_options = tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.NONE)
+global_default_options = tfrecords.TFRecordOptions(tfrecords.TFRecordCompressionType.GZIP)
