@@ -41,7 +41,8 @@ class load_dataset:
                                               batch_size=batch_size,
                                               cycle_length=cycle_length,
                                               block_length=block_length,
-                                              options=options)
+                                              options=options,
+                                              with_share_memory=with_share_memory)
         elif isinstance(path, str):
             cls = SingleParquetIterableDataset(path,
                                                col_names=col_names,
