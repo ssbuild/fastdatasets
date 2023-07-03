@@ -383,6 +383,7 @@ test_random(db_path)
 
 
 ```python
+
 from fastdatasets.arrow.writer import PythonWriter
 from fastdatasets.arrow.dataset import load_dataset,arrow
 
@@ -390,20 +391,23 @@ from fastdatasets.arrow.dataset import load_dataset,arrow
 path_file = 'd:/tmp/data.arrow'
 
 
-with_stream = False
+with_stream = True
 def test_write():
     fs = PythonWriter(path_file,
-                        schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
+                        schema={'id': 'int32',
+                                'text': 'str',
+                                # 'text2': 'str'
+                                },
                         with_stream=with_stream,
                         options=None)
-    for i in range(3):
+    for i in range(2):
         data = {
             "id": list(range(i * 10,(i+ 1) * 10)),
             'text': ['asdasdasdas' + str(i) for i in range(10)],
-            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
+            # 'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
         }
         # fs.write_batch(data.keys(),data.values())
-        fs.write_table(data.keys(),data.values())
+        fs.write_batch(data.keys(),data.values())
 
 
     fs.close()
@@ -417,22 +421,23 @@ def test_random():
 
 
 def test_read_iter():
-    dataset = load_dataset.IterableDataset(path_file,with_share_memory=not with_stream,batch_size=4)
+    dataset = load_dataset.IterableDataset(path_file,with_share_memory=not with_stream,batch_size=1)
     for d in dataset:
-        print(d)
+        print('iter',d)
 
 
 test_write()
 
 test_random()
-
-# test_read_iter()
+#
+test_read_iter()
 
 ```
 
 ### 8. parquet dataset 
 
 ```python
+
 from fastdatasets.parquet.writer import PythonWriter
 from fastdatasets.parquet.dataset import load_dataset
 from tfrecords.python.io.arrow import ParquetReader,arrow
@@ -448,9 +453,9 @@ def test_write():
                         parquet_options=dict(write_batch_size = 10))
     for i in range(3):
         data = {
-            "id": list(range(i * 10,(i+ 1) * 10)),
-            'text': ['asdasdasdas' + str(i) for i in range(10)],
-            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
+            "id": list(range(i * 5,(i+ 1) * 5)),
+            'text': ['asdasdasdas' + str(i) for i in range(5)],
+            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(5)]
         }
         # fs.write_batch(data.keys(),data.values())
         fs.write_table(data.keys(),data.values())
@@ -467,15 +472,15 @@ def test_random():
 
 
 def test_read_iter():
-    dataset = load_dataset.IterableDataset(path_file,batch_size=4)
+    dataset = load_dataset.IterableDataset(path_file,batch_size=1)
     for d in dataset:
-        print(d)
+        print('iter',d)
 
 
 test_write()
 
 test_random()
 
-# test_read_iter()
+test_read_iter()
 
 ```

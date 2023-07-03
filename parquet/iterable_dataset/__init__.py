@@ -124,7 +124,9 @@ class SingleParquetIterableDataset(IterableDatasetBase):
                 arr = list_d.value_slice(i)
                 d[col_name].append([arr.Value(_) for _ in range(arr.length())])
 
+        n = list(d.keys())
         d = list(zip(*d.values()))
+        d = [{_a: _b for _a, _b in zip(n, node)} for node in d]
         return  d
 
     def __next_ex__(self):

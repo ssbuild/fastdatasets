@@ -86,6 +86,7 @@ class SingleArrowRandomDataset(RandomDatasetBase):
                     col_names = schema.field_names()
                 else:
                     col_names = self.col_names
+                self._cache_col_names = col_names
                 self.cols = [self._table.GetColumnByName(n) for n in col_names]
             except Exception as e:
                 self._file_reader = None
@@ -108,12 +109,11 @@ class SingleArrowRandomDataset(RandomDatasetBase):
 
         if isinstance(item, slice):
             return self.__getitem_slice__(item)
-        x = ()
-        for col in self.cols:
+        x = {}
+        for name,col in zip(self._cache_col_names,self.cols) :
             col: arrow.ListArray
             it = col.value_slice(item)
-            val = [it.Value(_) for _ in range(it.length())]
-            x += (val,)
+            x[name] = [it.Value(_) for _ in range(it.length())]
         return x
 
 

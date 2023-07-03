@@ -50,4 +50,4 @@ test_write()
 
 test_random()
 
-# test_read_iter()
+test_read_iter()
