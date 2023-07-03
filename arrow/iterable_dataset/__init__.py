@@ -108,8 +108,11 @@ class SingleArrowIterableDataset(IterableDatasetBase):
     def __next_data_(self):
         if self.with_share_memory:
             self._file_reader: IPC_MemoryMappedFileReader
-            batch: arrow.RecordBatch = self._file_reader.read_batch(self.intenel_batch_idx)
-            self.intenel_batch_idx += 1
+            if self.intenel_batch_idx < self._file_reader.num_record_batches():
+                batch: arrow.RecordBatch = self._file_reader.read_batch(self.intenel_batch_idx)
+                self.intenel_batch_idx += 1
+            else:
+                raise StopIteration
         else:
             self._file_reader: IPC_StreamReader
             batch: arrow.RecordBatch = self._file_reader.next()

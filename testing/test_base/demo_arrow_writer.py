@@ -11,7 +11,7 @@ from fastdatasets.arrow.dataset import load_dataset,arrow
 path_file = 'd:/tmp/data.arrow'
 
 
-with_stream = True
+with_stream = False
 def test_write():
     fs = PythonWriter(path_file,
                         schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
@@ -38,9 +38,9 @@ def test_random():
 
 
 def test_read_iter():
-    dataset = load_dataset.IterableDataset(path_file,with_share_memory=not with_stream,batch_size=4)
+    dataset = load_dataset.IterableDataset(path_file,with_share_memory=not with_stream,batch_size=1)
     for d in dataset:
-        print(d)
+        print('iter',d)
 
 
 test_write()

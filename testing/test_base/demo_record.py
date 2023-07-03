@@ -3,7 +3,7 @@
 
 from fastdatasets.record import RECORD,load_dataset
 from fastdatasets import gfile
-data_path = gfile.glob('d:/example.tfrecords*')
+data_path = gfile.glob('d:/tmp/example.tfrecords*')
 print(data_path)
 options = RECORD.TFRecordOptions(compression_type=None)
 base_dataset = load_dataset.IterableDataset(data_path, cycle_length=1, block_length=1, buffer_size=128, options=options, with_share_memory=True)

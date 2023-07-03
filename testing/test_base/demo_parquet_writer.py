@@ -38,7 +38,7 @@ def test_random():
 
 
 def test_read_iter():
-    dataset = load_dataset.IterableDataset(path_file,batch_size=4)
+    dataset = load_dataset.IterableDataset(path_file,batch_size=1)
     for d in dataset:
         print(d)
 
@@ -47,4 +47,4 @@ test_write()
 
 test_random()
 
-# test_read_iter()
+test_read_iter()
