@@ -80,13 +80,12 @@ class SingleArrowRandomDataset(RandomDatasetBase):
                     self._file_reader = IPC_StreamReader(self.path,options=self.options)
                     self._table: arrow.Table = self._file_reader.read_all().Flatten().Value()
                     self.length = self._table.num_rows() if self._table is not None else 0
-                self._table = self._table.CombineChunksToBatch(arrow.default_memory_pool()).Value()
+                self._table: arrow.RecordBatch = self._table.CombineChunksToBatch(arrow.default_memory_pool()).Value()
                 if self.col_names is None:
                     schema : arrow.Schema = self._table.schema()
                     col_names = schema.field_names()
                 else:
                     col_names = self.col_names
-
                 self.cols = [self._table.GetColumnByName(n) for n in col_names]
             except Exception as e:
                 self._file_reader = None
@@ -109,11 +108,12 @@ class SingleArrowRandomDataset(RandomDatasetBase):
 
         if isinstance(item, slice):
             return self.__getitem_slice__(item)
-
         x = ()
         for col in self.cols:
-            x += (col.Value(item),)
-
+            col: arrow.ListArray
+            it = col.value_slice(item)
+            val = [it.Value(_) for _ in range(it.length())]
+            x += (val,)
         return x
 
 

@@ -72,10 +72,9 @@ class SingleParquetRandomDataset(RandomDatasetBase):
                                                   options=self.options,
                                                   memory_map=self.with_share_memory)
 
-                self._file_reader.set_batch_size(2)
                 self._table: arrow.Table = self._file_reader.read_table().Flatten().Value()
-
                 self.length = self._table.num_rows() if self._table is not None else 0
+                self._table = self._table.CombineChunksToBatch(pool=arrow.default_memory_pool()).Value()
 
                 if self.col_names is None:
                     schema : arrow.Schema = self._table.schema()
@@ -83,7 +82,7 @@ class SingleParquetRandomDataset(RandomDatasetBase):
                 else:
                     col_names = self.col_names
 
-                self.cols = [self._table.GetColumnByName(n).chunk(0) for n in col_names]
+                self.cols = [self._table.GetColumnByName(n) for n in col_names]
             except Exception as e:
                 self._file_reader = None
                 self._table = None
@@ -108,8 +107,10 @@ class SingleParquetRandomDataset(RandomDatasetBase):
 
         x = ()
         for col in self.cols:
-            x += (col.Value(item),)
-
+            col: arrow.ListArray
+            it = col.value_slice(item)
+            val = [it.Value(_) for _ in range(it.length())]
+            x += (val,)
         return x
 
 

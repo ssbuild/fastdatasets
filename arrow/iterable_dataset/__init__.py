@@ -126,9 +126,10 @@ class SingleArrowIterableDataset(IterableDatasetBase):
 
         d = {col_name: [] for col_name in col_names}
         for col_name in col_names:
-            arr = batch.GetColumnByName(col_name)
-            for i in range(arr.length()):
-                d[col_name].append(arr.Value(i))
+            list_d: arrow.ListArray = batch.GetColumnByName(col_name)
+            for i in range(list_d.length()):
+                arr = list_d.value_slice(i)
+                d[col_name].append([arr.Value(_) for _ in range(arr.length())])
 
         d = list(zip(*d.values()))
         return d

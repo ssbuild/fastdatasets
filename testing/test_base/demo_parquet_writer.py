@@ -19,9 +19,9 @@ def test_write():
                         parquet_options=dict(write_batch_size = 10))
     for i in range(3):
         data = {
-            "id": list(range(i * 10,(i+ 1) * 10)),
-            'text': ['asdasdasdas' + str(i) for i in range(10)],
-            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
+            "id": list(range(i * 5,(i+ 1) * 5)),
+            'text': ['asdasdasdas' + str(i) for i in range(5)],
+            'text2': ['asdasdasdas3asdadas' + str(i) for i in range(5)]
         }
         # fs.write_batch(data.keys(),data.values())
         fs.write_table(data.keys(),data.values())
@@ -40,7 +40,7 @@ def test_random():
 def test_read_iter():
     dataset = load_dataset.IterableDataset(path_file,batch_size=1)
     for d in dataset:
-        print(d)
+        print('iter',d)
 
 
 test_write()

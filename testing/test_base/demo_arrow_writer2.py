@@ -11,16 +11,19 @@ from fastdatasets.arrow.dataset import load_dataset,arrow
 path_file = 'd:/tmp/data.arrow'
 
 
-with_stream = False
+with_stream = True
 def test_write():
     fs = PythonWriter(path_file,
-                        schema={'id': 'int32', 'text': 'str', 'text2': 'str'},
+                        schema={'id': 'int32',
+                                'text': 'int32',
+                                'text2': 'str'
+                                },
                         with_stream=with_stream,
                         options=None)
-    for i in range(3):
+    for i in range(2):
         data = {
             "id": [0,1,2,3,4],
-            'text': [[1,2,3],[1],[2],[3],[4]],
+            'text': [[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],
             'text2': ['asdasdasdas3asdadas' + str(i) for i in range(5)]
         }
         # fs.write_batch(data.keys(),data.values())
@@ -47,4 +50,4 @@ test_write()
 
 test_random()
 
-test_read_iter()
+# test_read_iter()
