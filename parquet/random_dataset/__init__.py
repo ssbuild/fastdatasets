@@ -106,9 +106,13 @@ class SingleParquetRandomDataset(RandomDatasetBase):
             return self.__getitem_slice__(item)
         x = {}
         for name, col in zip(self._cache_col_names, self.cols):
-            col: arrow.ListArray
-            it = col.value_slice(item)
-            x[name] = [it.Value(_) for _ in range(it.length())]
+            if isinstance(col,arrow.ListArray):
+                col: arrow.ListArray
+                it = col.value_slice(item)
+                x[name] = [it.Value(_) for _ in range(it.length())]
+            else:
+                x[name] = col.Value(item)
+
         return x
 
 

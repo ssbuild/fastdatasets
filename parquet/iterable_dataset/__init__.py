@@ -119,10 +119,15 @@ class SingleParquetIterableDataset(IterableDatasetBase):
 
         d = {col_name: [] for col_name in col_names}
         for col_name in col_names:
-            list_d: arrow.ListArray = batch.GetColumnByName(col_name)
-            for i in range(list_d.length()):
-                arr = list_d.value_slice(i)
-                d[col_name].append([arr.Value(_) for _ in range(arr.length())])
+            list_or_arr_d: arrow.ListArray = batch.GetColumnByName(col_name)
+            if isinstance(list_or_arr_d, arrow.ListArray):
+                for i in range(list_or_arr_d.length()):
+                    arr = list_or_arr_d.value_slice(i)
+                    d[col_name].append([arr.Value(_) for _ in range(arr.length())])
+            else:
+                list_or_arr_d: arrow.Array
+                for i in range(list_or_arr_d.length()):
+                    d[col_name].append(list_or_arr_d.Value(i))
 
         n = list(d.keys())
         d = list(zip(*d.values()))
