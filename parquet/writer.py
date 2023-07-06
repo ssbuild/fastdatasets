@@ -76,6 +76,7 @@ class PythonWriter:
                  arrow_options: typing.Optional[typing.Dict]=None):
         assert len(schema)
         global MAP_DTYPE
+        self.raw_schema = {k: MAP_DTYPE.get(v.lower())[0] for k, v in schema.items()}
         self.schema = arrow.schema([arrow.field(k, MAP_DTYPE.get(v.lower())[0]) for k, v in schema.items()])
         self.builder = {k: MAP_DTYPE.get(v.lower())[1]() for k, v in schema.items()}
         self.file_writer_ = ParquetWriter(filename,self.schema,parquet_options,arrow_options)

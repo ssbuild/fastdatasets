@@ -77,6 +77,7 @@ class PythonWriter:
                  options: typing.Optional[typing.Dict]=None):
         assert len(schema)
         global MAP_DTYPE
+        self.raw_schema = {k:MAP_DTYPE.get(v.lower())[0] for k,v in schema.items()}
         self.schema = arrow.schema([arrow.field(k,MAP_DTYPE.get(v.lower())[0]) for k,v in schema.items()])
         self.builder = {k:MAP_DTYPE.get(v.lower())[1]() for k, v in schema.items()}
         self.file_writer_ : IPC_Writer = IPC_Writer(filename,self.schema,with_stream=with_stream,options=options)
