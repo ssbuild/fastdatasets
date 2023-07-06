@@ -16,11 +16,11 @@ filename_2 =  r'd:/tmp/example_writer.tfrecord2'
 def test_string(filename):
     
 
-    options = 'GZIP'
+    options = 'SNAPPY'
     print('test_string ...')
     with StringWriter(filename,options=options) as writer:
         for i in range(2):
-            writer.write(b'123' )
+            ret = writer.write(b'123' )
     writer.close()
 
 
