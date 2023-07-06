@@ -88,12 +88,12 @@ class PythonWriter:
     def write_batch(self,keys,values):
         values_list =  self.__get_values__(keys,values)
         batch = arrow.RecordBatch.Make(self.schema,num_rows = values_list[0].length(),columns=values_list)
-        self.file_writer_.write_record_batch(batch)
+        return self.file_writer_.write_record_batch(batch)
 
     def write_table(self,keys,values):
         values_list = self.__get_values__(keys, values)
         table = arrow.Table.Make(self.schema, arrays=values_list)
-        self.file_writer_.write_table(table)
+        return self.file_writer_.write_table(table)
 
     def close(self):
         self.file_writer_.close()
