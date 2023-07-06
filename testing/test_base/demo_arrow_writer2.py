@@ -15,7 +15,7 @@ with_stream = True
 def test_write():
     fs = PythonWriter(path_file,
                         schema={'id': 'int32',
-                                'text': 'int32',
+                                'ids': 'int32_list',
                                 'text2': 'str'
                                 },
                         with_stream=with_stream,
@@ -23,7 +23,7 @@ def test_write():
     for i in range(2):
         data = {
             "id": [0,1,2,3,4],
-            'text': [[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],
+            'ids': [[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]],
             'text2': ['asdasdasdas3asdadas' + str(i) for i in range(5)]
         }
         # fs.write_batch(data.keys(),data.values())

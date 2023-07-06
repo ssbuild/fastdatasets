@@ -27,7 +27,8 @@ def test_write():
             # 'text2': ['asdasdasdas3asdadas' + str(i) for i in range(10)]
         }
         # fs.write_batch(data.keys(),data.values())
-        fs.write_batch(data.keys(),data.values())
+        status = fs.write_batch(data.keys(),data.values())
+        assert status.ok(),status.message()
 
 
     fs.close()
@@ -36,7 +37,7 @@ def test_random():
     dataset = load_dataset.RandomDataset(path_file,with_share_memory=not with_stream)
     print('total', len(dataset))
     for i in range(len(dataset)):
-        print(dataset[i])
+        print(i,dataset[i])
 
 
 
