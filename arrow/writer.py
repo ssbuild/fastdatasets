@@ -63,9 +63,9 @@ MAP_DTYPE = {
     'str_list': (arrow.list(arrow.utf8()), arrow.StringBuilder),
     'large_str_list': (arrow.list(arrow.large_utf8()), arrow.LargeStringBuilder),
     'binary_list': (arrow.list(arrow.binary()), arrow.BinaryBuilder),
-    'large_binary_list': (arrow.list(arrow.large_utf8()), arrow.LargeBinaryBuilder),
+    'large_binary_list': (arrow.list(arrow.large_binary()), arrow.LargeBinaryBuilder),
     'bytes_list': (arrow.list(arrow.binary()), arrow.BinaryBuilder),
-    'large_bytes_list': (arrow.list(arrow.large_utf8()), arrow.LargeBinaryBuilder),
+    'large_bytes_list': (arrow.list(arrow.large_binary()), arrow.LargeBinaryBuilder),
     # 'map_list':(arrow.map(arrow.utf8(),arrow.utf8()),arrow.StringBuilder),
     # 'large_map_list':(arrow.map(arrow.utf8(),arrow.utf8()),arrow.StringBuilder),
 }
