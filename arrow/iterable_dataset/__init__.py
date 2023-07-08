@@ -125,22 +125,43 @@ class SingleArrowIterableDataset(IterableDatasetBase):
             col_names = self.col_names
 
 
-        d = {col_name: [] for col_name in col_names}
-        for col_name in col_names:
-            list_or_arr_d: arrow.ListArray = batch.GetColumnByName(col_name)
-            if isinstance(list_or_arr_d,arrow.ListArray):
-                for i in range(list_or_arr_d.length()):
-                    arr = list_or_arr_d.value_slice(i)
-                    d[col_name].append([arr.Value(_) for _ in range(arr.length())])
+        x = {name: [] for name in col_names}
+        for name in col_names:
+            d = x[name]
+            col = batch.GetColumnByName(name)
+            if isinstance(col, arrow.MapArray):
+                col: arrow.MapArray
+                for i in range(col.length()):
+                    it: arrow.StructArray = col.value_slice(i)
+                    assert it.num_fields() == 2
+                    ks: arrow.StringArray = it.field(0)
+                    vs: arrow.StringArray = it.field(1)
+                    d.append({ks.Value(_): vs.Value(_) for _ in range(it.length())})
+            elif isinstance(col,arrow.ListArray):
+                col: arrow.ListArray
+                for i in range(col.length()):
+                    it = col.value_slice(i)
+                    if isinstance(it, arrow.MapArray):
+                        it: arrow.MapArray
+                        arr_ = []
+                        for _ in range(it.length()):
+                            t_ = it.value_slice(_)
+                            ks: arrow.StringArray = t_.field(0)
+                            vs: arrow.StringArray = t_.field(1)
+                            dict_ = {ks.Value(__): vs.Value(__) for __ in range(ks.length())}
+                            arr_.append(dict_)
+                        d.append(arr_)
+                    else:
+                        d.append([it.Value(_) for _ in range(it.length())])
             else:
-                list_or_arr_d: arrow.Array
-                for i in range(list_or_arr_d.length()):
-                    d[col_name].append(list_or_arr_d.Value(i))
+                col: arrow.Array
+                for i in range(col.length()):
+                    d.append(col.Value(i))
 
-        n = list(d.keys())
-        d = list(zip(*d.values()))
-        d = [{_a: _b for _a, _b in zip(n, node)} for node in d]
-        return d
+        n = list(x.keys())
+        x = list(zip(*x.values()))
+        x = [{_a: _b for _a, _b in zip(n, node)} for node in x]
+        return x
 
     def __next_ex__(self):
         if self._file_reader is None:

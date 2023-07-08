@@ -66,9 +66,24 @@ MAP_DTYPE = {
     'large_binary_list': (arrow.list(arrow.large_binary()), arrow.LargeBinaryBuilder),
     'bytes_list': (arrow.list(arrow.binary()), arrow.BinaryBuilder),
     'large_bytes_list': (arrow.list(arrow.large_binary()), arrow.LargeBinaryBuilder),
-    # 'map_list':(arrow.map(arrow.utf8(),arrow.utf8()),arrow.StringBuilder),
-    # 'large_map_list':(arrow.map(arrow.utf8(),arrow.utf8()),arrow.StringBuilder),
+    'map': (arrow.map(arrow.utf8(), arrow.utf8()), arrow.StringBuilder),
+    'large_map': (arrow.map(arrow.utf8(), arrow.utf8()), arrow.LargeStringBuilder),
+    'map_list':(arrow.list(arrow.map(arrow.utf8(),arrow.utf8())),arrow.StringBuilder),
+    'large_map_list':(arrow.list(arrow.map(arrow.large_utf8(),arrow.large_utf8())),arrow.LargeStringBuilder),
 }
+
+
+def build_string_array(arr):
+    b = arrow.StringBuilder()
+    b.AppendValues(list(arr))
+    return b.Finish().Value()
+
+def build_int32_array(arr):
+    b = arrow.Int32Builder()
+    b.AppendValues(list(arr))
+    return b.Finish().Value()
+
+
 class PythonWriter:
     def __init__(self,filename,
                  schema: typing.Dict,
@@ -81,37 +96,79 @@ class PythonWriter:
         self.builder = {k: MAP_DTYPE.get(v.lower())[1]() for k, v in schema.items()}
         self.file_writer_ = ParquetWriter(filename,self.schema,parquet_options,arrow_options)
 
+    def _build_batch_list_data(self, key, batch):
+        offsets_val = [0]
+        values_val = []
+        pos = 0
+        for value in batch:
+            if not isinstance(value, list):
+                value = [value]
+            pos += len(value)
+            offsets_val.append(pos)
+            values_val.extend(value)
+
+        builder = arrow.Int32Builder()
+        builder.AppendValues(offsets_val)
+        offsets_: arrow.Int32Array = builder.Finish().Value()
+
+        builder2 = self.builder[key]
+        builder2.AppendValues(values_val)
+        values_ = builder2.Finish().Value()
+        values_: arrow.ListArray = arrow.ListArray.FromArrays(offsets=offsets_, values=values_).Value()
+        return values_
+
+
+    def _build_batch_map_data(self, key, batch_values):
+        ks, vs = [], []
+        offsets_, offsets2_ = [0], [0]
+        pos, pos2 = 0, 0
+        for value in batch_values:
+            if isinstance(value,list):
+                for sub in value:
+                    pos += len(value[0].keys())
+                    offsets_.append(pos)
+                    build_string_array(sub.keys())
+                    ks.extend(list(sub.keys()))
+                    vs.extend(list(sub.values()))
+
+                pos2 += len(value)
+                offsets2_.append(pos2)
+            else:
+                assert isinstance(value,dict)
+                pos += len(value.keys())
+                offsets_.append(pos)
+                build_string_array(value.keys())
+                ks.extend(list(value.keys()))
+                vs.extend(list(value.values()))
+
+        ks = build_string_array(ks)
+        vs = build_string_array(vs)
+
+        offsets = build_int32_array(offsets_)
+        values_ = arrow.MapArray.FromArrays(offsets, ks, vs).Value()
+
+        if isinstance(batch_values[0],list):
+            offsets = build_int32_array(offsets2_)
+            values_ = arrow.ListArray.FromArrays(offsets, values_).Value()
+        return values_
+
     def __get_values__(self, keys, values):
         values_list = []
-        for k, v in zip(keys, values):
-            if isinstance(v, np.ndarray):
-                assert v.ndim == 1
-            d = v.tolist() if isinstance(v, np.ndarray) else v
-            assert len(d)
+        for k, batch_values in zip(keys, values):
+            if isinstance(batch_values, np.ndarray):
+                assert batch_values.ndim == 1
+            batch_values = batch_values.tolist() if isinstance(batch_values, np.ndarray) else batch_values
+            assert len(batch_values)
             if self.raw_schema[k].id() == arrow.Type.LIST:
-                offsets_val = [0]
-                values_val = []
-                pos = 0
-                for value in d:
-                    if not isinstance(value, list):
-                        value = [value]
-                    pos += len(value)
-                    offsets_val.append(pos)
-                    values_val.extend(value)
-
-                builder = arrow.Int32Builder()
-                builder.AppendValues(offsets_val)
-                offsets_: arrow.Int32Array = builder.Finish().Value()
-
-                builder2 = self.builder[k]
-                builder2.AppendValues(values_val)
-                values_ = builder2.Finish().Value()
-                values_: arrow.ListArray = arrow.ListArray.FromArrays(offsets=offsets_, values=values_).Value()
-            # elif self.raw_schema[k].id() == arrow.Type.MAP:
-            #     arrow.MapArray()
+                if isinstance(batch_values[0], list) and isinstance(batch_values[0][0], dict):
+                    values_ = self._build_batch_map_data(k, batch_values)
+                else:
+                    values_ = self._build_batch_list_data(k, batch_values)
+            elif self.raw_schema[k].id() == arrow.Type.MAP:
+                values_ = self._build_batch_map_data(k, batch_values)
             else:
                 builder = self.builder[k]
-                builder.AppendValues(d)
+                builder.AppendValues(batch_values)
                 values_ = builder.Finish().Value()
             values_list.append(values_)
         return values_list
@@ -125,6 +182,9 @@ class PythonWriter:
         values_list = self.__get_values__(keys, values)
         table = arrow.Table.Make(self.schema, arrays=values_list)
         return self.file_writer_.write_table(table)
+
+    def get_file_writer(self):
+        return self.file_writer_
 
     def close(self):
         self.file_writer_.close()

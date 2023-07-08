@@ -110,11 +110,29 @@ class SingleArrowRandomDataset(RandomDatasetBase):
         if isinstance(item, slice):
             return self.__getitem_slice__(item)
         x = {}
-        for name,col in zip(self._cache_col_names,self.cols) :
-            if isinstance(col, arrow.ListArray):
+        for name, col in zip(self._cache_col_names, self.cols):
+            if isinstance(col, arrow.MapArray):
+                col: arrow.MapArray
+                it: arrow.StructArray = col.value_slice(item)
+                assert it.num_fields() == 2
+                ks: arrow.StringArray = it.field(0)
+                vs: arrow.StringArray = it.field(1)
+                x[name] = {ks.Value(_): vs.Value(_) for _ in range(it.length())}
+            elif isinstance(col, arrow.ListArray):
                 col: arrow.ListArray
                 it = col.value_slice(item)
-                x[name] = [it.Value(_) for _ in range(it.length())]
+                if isinstance(it, arrow.MapArray):
+                    it: arrow.MapArray
+                    arr_ = []
+                    for _ in range(it.length()):
+                        t_ = it.value_slice(_)
+                        ks: arrow.StringArray = t_.field(0)
+                        vs: arrow.StringArray = t_.field(1)
+                        dict_ = {ks.Value(__): vs.Value(__) for __ in range(ks.length())}
+                        arr_.append(dict_)
+                    x[name] = arr_
+                else:
+                    x[name] = [it.Value(_) for _ in range(it.length())]
             else:
                 x[name] = col.Value(item)
         return x
