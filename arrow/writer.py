@@ -17,6 +17,7 @@ __all__ = [
     'MAP_DTYPE'
 ]
 
+
 MAP_DTYPE = {
     'int8': (arrow.int8(),arrow.Int8Builder),
     'int16': (arrow.int16(),arrow.Int16Builder),
@@ -32,17 +33,17 @@ MAP_DTYPE = {
     'ulong': (arrow.uint64(),arrow.UInt64Builder),
     'float16': (arrow.float16(),arrow.HalfFloatBuilder),
     'float32': (arrow.float32(),arrow.FloatBuilder),
-    'float63': (arrow.float64(),arrow.DoubleType),
+    'float64': (arrow.float64(),arrow.DoubleBuilder),
     'float': (arrow.float32(),arrow.FloatBuilder),
-    'double': (arrow.float64(),arrow.DoubleType),
-    'bytes': (arrow.binary(),arrow.BinaryType),
-    'large_bytes': (arrow.large_binary(),arrow.LargeBinaryType),
-    'binary': (arrow.binary(),arrow.BinaryType),
-    'large_binary': (arrow.large_binary(),arrow.LargeBinaryType),
+    'double': (arrow.float64(),arrow.DoubleBuilder),
+    'bytes': (arrow.binary(),arrow.BinaryBuilder),
+    'large_bytes': (arrow.large_binary(),arrow.LargeBinaryBuilder),
+    'binary': (arrow.binary(),arrow.BinaryBuilder),
+    'large_binary': (arrow.large_binary(),arrow.LargeBinaryBuilder),
     'str': (arrow.utf8(),arrow.StringBuilder),
-    'large_str': (arrow.utf8(),arrow.LargeStringType),
+    'large_str': (arrow.utf8(),arrow.LargeBinaryBuilder),
     'string': (arrow.large_utf8(),arrow.StringBuilder),
-    'large_string': (arrow.large_utf8(),arrow.LargeStringType),
+    'large_string': (arrow.large_utf8(),arrow.LargeStringBuilder),
     'int8_list':(arrow.list(arrow.int8()),arrow.Int8Builder),
     'int16_list':(arrow.list(arrow.int16()),arrow.Int16Builder),
     'int32_list':(arrow.list(arrow.int32()),arrow.Int32Builder),
