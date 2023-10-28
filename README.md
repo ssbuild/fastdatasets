@@ -2,6 +2,7 @@
 ## The update statement 
 
 ```text
+2023-10-28  support more torch well known datatasets 
 2023-07-08: support some nested case
 2023-07-02: support arrow parquet
 2023-04-28: fix lmdb mutiprocess
@@ -9,7 +10,6 @@
 2022-12-07: modify a bug for randomdataset for batch reminder
 2022-11-07: add numpy writer and parser,add memory writer and parser
 2022-10-29: add kv dataset 
-2022-10-19: update and modify for __all__ module
 ```
 
 ## usage

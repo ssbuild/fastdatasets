@@ -1,35 +1,26 @@
-import sys
-sys.path.append('.')
-
-import pprint
-import setuptools
 import os
-cur_path = os.path.dirname(__file__)
+from setuptools import find_packages,setup
 
-package_name = 'fastdatasets'
-current_dir = os.path.dirname(os.path.abspath(__file__))
-title = 'fastdatasets: datasets for tfrecords'
 
-with open(os.path.join(current_dir, 'README.md'), mode='r', encoding='utf-8') as f:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.md'), mode='r', encoding='utf-8') as f:
     project_description_str = f.read()
 
 if __name__ == '__main__':
-    package_list = setuptools.find_packages('./fastdatasets', exclude=['tests.*'])
-    pprint.pprint(package_list)
-    package_list = ['fastdatasets'] +  [ 'fastdatasets.' + p for p in package_list]
-
-    setuptools.setup(
-        name=package_name,
-        version="0.9.16",
+    setup(
+        name="fastdatasets",
+        version="0.9.17",
         author="ssbuild",
         author_email="9727464@qq.com",
-        description=title,
+        description='fastdatasets: datasets for tfrecords',
         long_description_content_type='text/markdown',
         long_description=project_description_str,
         url="https://github.com/ssbuild/fastdatasets",
-        packages=package_list,
+        package_dir={"": "src"},
+        packages=find_packages("src"),
+        include_package_data=True,
+        package_data={"": ["**/*.cu", "**/*.cpp", "**/*.cuh", "**/*.h", "**/*.pyx"]},
         python_requires='>=3, <4',  # python的依赖关系
-        install_requires=['tfrecords >= 0.2.12 , < 0.3','data_serialize >= 0.2.1','numpy'],
+        install_requires=['tfrecords >= 0.2.16 , < 0.3','data_serialize >= 0.2.1','numpy'],
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
@@ -44,6 +35,7 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
             'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Mathematics',
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
@@ -52,7 +44,7 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
         license='Apache 2.0',
-        keywords=[package_name, "fastdatasets", 'tfrecords', 'dataset', 'datasets'],
+        keywords=["fastdatasets", 'tfrecords', 'dataset', 'datasets'],
     )
 
 
