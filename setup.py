@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     setuptools.setup(
         name=package_name,
-        version="0.9.16",
+        version="0.9.17",
         author="ssbuild",
         author_email="9727464@qq.com",
         description=title,
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         url="https://github.com/ssbuild/fastdatasets",
         packages=package_list,
         python_requires='>=3, <4',  # python的依赖关系
-        install_requires=['tfrecords >= 0.2.12 , < 0.3','data_serialize >= 0.2.1','numpy'],
+        install_requires=['tfrecords >= 0.2.16 , < 0.3','data_serialize >= 0.2.1','numpy'],
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
