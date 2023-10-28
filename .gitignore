@@ -3,3 +3,4 @@
 /dist
 /build
 /src/fastdatasets.egg-info
+/tests/hf/test.mp3
